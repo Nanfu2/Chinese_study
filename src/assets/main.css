@@ -1,0 +1,72 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* 基础样式 */
+@layer base {
+  body {
+    font-family: 'Inter', system-ui, sans-serif;
+    background-color: #F7FFF7;
+    color: #292F36;
+  }
+  
+  /* 儿童端特殊样式 */
+  .child-ui {
+    @apply text-dark;
+    
+    /* 大按钮 */
+    .btn-large {
+      @apply w-full py-4 px-6 text-xl font-bold rounded-xl shadow-lg transition-all duration-300 active:scale-95;
+    }
+    
+    /* 高对比度 */
+    .high-contrast {
+      @apply bg-primary text-white;
+    }
+    
+    /* 圆角元素 */
+    .rounded-xl {
+      border-radius: 1rem;
+    }
+    
+    /* 动画卡片 */
+    .animation-card {
+      @apply bg-white rounded-2xl shadow-lg p-4 transition-all duration-300 hover:shadow-xl transform hover:-translate-y-1;
+    }
+  }
+  
+  /* 家长端特殊样式 */
+  .parent-ui {
+    .dashboard-card {
+      @apply bg-white rounded-xl shadow-md p-6 transition-all duration-300 hover:shadow-lg;
+    }
+    
+    .stat-card {
+      @apply bg-white rounded-lg p-4 shadow border border-gray-100;
+    }
+  }
+}
+
+/* 自定义工具类 */
+@layer utilities {
+  .content-auto {
+    content-visibility: auto;
+  }
+  
+  .text-shadow {
+    text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  }
+  
+  .text-shadow-lg {
+    text-shadow: 0 4px 8px rgba(0,0,0,0.12), 0 2px 4px rgba(0,0,0,0.08);
+  }
+  
+  .animate-pulse-slow {
+    animation: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+  
+  /* 护眼模式 */
+  .eye-care {
+    filter: brightness(0.9) contrast(0.95) saturate(0.9);
+  }
+}

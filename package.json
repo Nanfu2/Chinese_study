@@ -1,0 +1,29 @@
+{
+  "name": "mengdou-chinese-learning",
+  "description": "萌豆语文动画屋 - 低龄儿童语文启蒙视频学习平台",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "vue": "^3.5.22",
+    "vue-router": "^4.5.13",
+    "pinia": "^2.3.1",
+    "@supabase/supabase-js": "^2.46.1",
+    "dayjs": "^1.11.13"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^6.0.1",
+    "vite": "npm:rolldown-vite@7.1.14",
+    "tailwindcss": "^3.4.1",
+    "postcss": "^8.4.49",
+    "autoprefixer": "^10.4.20"
+  },
+  "overrides": {
+    "vite": "npm:rolldown-vite@7.1.14"
+  }
+}
