@@ -175,81 +175,74 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import { extendedContentService } from '../../services/supabase_extended'
 
 const router = useRouter()
 
 // 状态管理
 const showStrokeAnimation = ref(false)
 const currentIndex = ref(0)
+const charactersData = ref([])
+const isLoading = ref(true)
 
-// 汉字数据
-const charactersData = [
-  {
-    character: '日',
-    pinyin: 'rì',
-    meaning: '太阳',
-    strokeCount: 4,
-    evolution: [
-      { form: '⊙', period: '甲骨文' },
-      { form: '日', period: '金文' },
-      { form: '日', period: '小篆' },
-      { form: '日', period: '楷书' }
-    ],
-    strokeImage: '/strokes/ri.gif',
-    story: '古时候，人们看到天上的太阳，形状圆圆的，就画了一个圆圈来表示。后来，为了区分圆形和太阳，人们在圆圈中间加了一点，就成了甲骨文里的"日"字。再后来，字体逐渐简化，变成了今天我们看到的方形"日"字。',
-    illustration: '/stories/ri.jpg',
-    words: [
-      { text: '太阳', pinyin: 'tài yáng', meaning: '太阳系的中心天体' },
-      { text: '日出', pinyin: 'rì chū', meaning: '太阳从东方升起' },
-      { text: '日期', pinyin: 'rì qī', meaning: '具体的年月日' },
-      { text: '日常', pinyin: 'rì cháng', meaning: '平时的、每天的' }
+// 加载汉字数据
+const loadCharacters = async () => {
+  try {
+    isLoading.value = true
+    const characters = await extendedContentService.getChineseCharacters(10)
+    
+    charactersData.value = characters.map(char => ({
+      character: char.character,
+      pinyin: char.pinyin,
+      meaning: char.meaning || '暂无描述',
+      strokeCount: 4, // 需要从数据库获取实际笔画数
+      evolution: [
+        { form: char.character, period: '甲骨文' },
+        { form: char.character, period: '金文' },
+        { form: char.character, period: '小篆' },
+        { form: char.character, period: '楷书' }
+      ],
+      strokeImage: char.stroke_order_url || '/strokes/default.gif',
+      story: `"${char.character}"字是一个非常有趣的汉字，它有着悠久的历史和丰富的文化内涵。`,
+      illustration: '/stories/default.jpg',
+      words: [
+        { text: `${char.character}字`, pinyin: char.pinyin, meaning: `关于${char.character}的词语` },
+        { text: '学习', pinyin: 'xué xí', meaning: '获取知识的过程' },
+        { text: '汉字', pinyin: 'hàn zì', meaning: '中文书写系统的基本单位' },
+        { text: '文化', pinyin: 'wén huà', meaning: '人类社会的精神财富' }
+      ]
+    }))
+    
+  } catch (error) {
+    console.error('加载汉字数据失败:', error)
+    // 如果API调用失败，使用默认数据
+    charactersData.value = [
+      {
+        character: '日',
+        pinyin: 'rì',
+        meaning: '太阳',
+        strokeCount: 4,
+        evolution: [
+          { form: '⊙', period: '甲骨文' },
+          { form: '日', period: '金文' },
+          { form: '日', period: '小篆' },
+          { form: '日', period: '楷书' }
+        ],
+        strokeImage: '/strokes/ri.gif',
+        story: '古时候，人们看到天上的太阳，形状圆圆的，就画了一个圆圈来表示。',
+        illustration: '/stories/ri.jpg',
+        words: [
+          { text: '太阳', pinyin: 'tài yáng', meaning: '太阳系的中心天体' },
+          { text: '日出', pinyin: 'rì chū', meaning: '太阳从东方升起' }
+        ]
+      }
     ]
-  },
-  {
-    character: '月',
-    pinyin: 'yuè',
-    meaning: '月亮',
-    strokeCount: 4,
-    evolution: [
-      { form: 'D', period: '甲骨文' },
-      { form: '月', period: '金文' },
-      { form: '月', period: '小篆' },
-      { form: '月', period: '楷书' }
-    ],
-    strokeImage: '/strokes/yue.gif',
-    story: '古人看到月亮有时像一把弯弯的镰刀，有时像一个圆盘。在甲骨文中，"月"字就像一个弯弯的月牙，中间的一点代表月亮中的阴影。随着时间的推移，"月"字逐渐演变成现在的样子，成为表示月亮和月份的常用字。',
-    illustration: '/stories/yue.jpg',
-    words: [
-      { text: '月亮', pinyin: 'yuè liàng', meaning: '地球的天然卫星' },
-      { text: '月光', pinyin: 'yuè guāng', meaning: '月亮发出的光' },
-      { text: '月份', pinyin: 'yuè fèn', meaning: '一年中的一个月' },
-      { text: '月饼', pinyin: 'yuè bǐng', meaning: '中秋节吃的圆形点心' }
-    ]
-  },
-  {
-    character: '山',
-    pinyin: 'shān',
-    meaning: '山峰',
-    strokeCount: 3,
-    evolution: [
-      { form: '彐', period: '甲骨文' },
-      { form: '山', period: '金文' },
-      { form: '山', period: '小篆' },
-      { form: '山', period: '楷书' }
-    ],
-    strokeImage: '/strokes/shan.gif',
-    story: '"山"字的起源很有趣，它就像三座连绵起伏的山峰。在甲骨文中，"山"字是三个山峰的形状，非常形象。这个字很好地描绘了自然界中山峦叠嶂的样子，后来逐渐简化成今天我们看到的三笔写成的"山"字。',
-    illustration: '/stories/shan.jpg',
-    words: [
-      { text: '山峰', pinyin: 'shān fēng', meaning: '山的尖顶部分' },
-      { text: '山脉', pinyin: 'shān mài', meaning: '连绵不断的山' },
-      { text: '山水', pinyin: 'shān shuǐ', meaning: '山和水，指自然风光' },
-      { text: '山路', pinyin: 'shān lù', meaning: '山上的路' }
-    ]
+  } finally {
+    isLoading.value = false
   }
-]
+}
 
 // 连线游戏数据
 const matchingItems = [

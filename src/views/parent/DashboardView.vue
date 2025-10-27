@@ -4,7 +4,7 @@
     <header class="p-4 bg-white shadow-sm">
       <div class="container mx-auto flex justify-between items-center">
         <div class="flex items-center">
-          <img src="/logo.png" alt="萌豆语文动画屋" class="h-10 w-10 rounded-full mr-3" />
+          <img src="/logo.svg" alt="萌豆语文动画屋" class="h-10 w-10 rounded-full mr-3" />
           <h1 class="text-2xl font-bold text-primary">萌豆语文动画屋</h1>
         </div>
         <div class="flex items-center space-x-4">
@@ -35,7 +35,7 @@
           </div>
           <div class="relative">
             <button @click="toggleUserMenu" class="flex items-center space-x-2">
-              <img :src="user?.avatar || '/default-avatar.png'" alt="用户头像" class="h-8 w-8 rounded-full" />
+              <img :src="user?.avatar || '/logo.svg'" alt="用户头像" class="h-8 w-8 rounded-full" />
               <span>{{ user?.email ? user.email.split('@')[0] : '用户' }}</span>
               <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />

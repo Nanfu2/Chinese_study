@@ -160,140 +160,148 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import { apiService } from '../../services/api'
 
 const router = useRouter()
 
 // 状态管理
 const activeTab = ref('全部')
 const achievementTabs = ['全部', '学习', '行为', '连续', '挑战']
+const isLoading = ref(true)
 
 // 成就数据
-const achievements = ref([
-  // 学习类成就
-  {
-    id: 1,
-    title: '拼音入门',
-    description: '完成10个拼音动画的学习',
-    icon: '/achievements/pinyin.png',
-    points: 50,
-    isCompleted: true,
-    isNew: false,
-    type: '学习',
-    progress: 100
-  },
-  {
-    id: 2,
-    title: '汉字小达人',
-    description: '认识50个基础汉字',
-    icon: '/achievements/character.png',
-    points: 100,
-    isCompleted: false,
-    isNew: false,
-    type: '学习',
-    progress: 65
-  },
-  {
-    id: 3,
-    title: '词汇小能手',
-    description: '掌握100个常用词汇',
-    icon: '/achievements/vocabulary.png',
-    points: 150,
-    isCompleted: false,
-    isNew: false,
-    type: '学习',
-    progress: 40
-  },
-  // 行为类成就
-  {
-    id: 4,
-    title: '学习小标兵',
-    description: '一天内学习时间超过30分钟',
-    icon: '/achievements/daily.png',
-    points: 30,
-    isCompleted: true,
-    isNew: true,
-    type: '行为',
-    progress: 100
-  },
-  {
-    id: 5,
-    title: '专注小卫士',
-    description: '连续学习不中断20分钟',
-    icon: '/achievements/focus.png',
-    points: 40,
-    isCompleted: true,
-    isNew: false,
-    type: '行为',
-    progress: 100
-  },
-  // 连续类成就
-  {
-    id: 6,
-    title: '坚持一周',
-    description: '连续7天登录学习',
-    icon: '/achievements/week.png',
-    points: 200,
-    isCompleted: true,
-    isNew: false,
-    type: '连续',
-    progress: 100
-  },
-  {
-    id: 7,
-    title: '月度学习之星',
-    description: '连续30天登录学习',
-    icon: '/achievements/month.png',
-    points: 500,
-    isCompleted: false,
-    isNew: false,
-    type: '连续',
-    progress: 25
-  },
-  // 挑战类成就
-  {
-    id: 8,
-    title: '全能小冠军',
-    description: '完成所有类型的学习模块',
-    icon: '/achievements/champion.png',
-    points: 300,
-    isCompleted: false,
-    isNew: false,
-    type: '挑战',
-    progress: 75
-  },
-  {
-    id: 9,
-    title: '学习达人',
-    description: '累计学习时间超过50小时',
-    icon: '/achievements/learn.png',
-    points: 400,
-    isCompleted: false,
-    isNew: false,
-    type: '挑战',
-    progress: 30
-  }
-])
+const achievements = ref([])
+const childAchievements = ref([])
 
 // 统计数据
 const totalAchievements = computed(() => achievements.value.length)
-const completedAchievements = computed(() => achievements.value.filter(a => a.isCompleted).length)
-const level = 5
+const completedAchievements = computed(() => childAchievements.value.length)
+const level = computed(() => Math.floor(childAchievements.value.length / 3) + 1)
 const totalPoints = computed(() => {
-  return achievements.value.filter(a => a.isCompleted).reduce((sum, a) => sum + a.points, 0)
+  return childAchievements.value.reduce((sum, ca) => {
+    const achievement = achievements.value.find(a => a.id === ca.achievement_id)
+    return sum + (achievement?.reward_points || 0)
+  }, 0)
 })
-const streakDays = 18
+const streakDays = ref(0)
 const nextStreakReward = 21
-const streakProgress = computed(() => (streakDays / nextStreakReward) * 100)
+const streakProgress = computed(() => (streakDays.value / nextStreakReward) * 100)
 
 // 计算属性：过滤后的成就列表
 const filteredAchievements = computed(() => {
+  const allAchievements = achievements.value.map(achievement => {
+    const childAchievement = childAchievements.value.find(ca => ca.achievement_id === achievement.id)
+    const isCompleted = !!childAchievement
+    
+    // 根据成就类型映射到前端分类
+    let type = '学习'
+    if (achievement.condition_type.includes('watch_count')) type = '行为'
+    if (achievement.condition_type.includes('streak')) type = '连续'
+    if (achievement.condition_type.includes('completion_rate')) type = '挑战'
+    
+    return {
+      id: achievement.id,
+      title: achievement.name,
+      description: achievement.description,
+      icon: achievement.icon_url || '/achievements/default.png',
+      points: achievement.reward_points || 0,
+      isCompleted: isCompleted,
+      isNew: childAchievement && new Date(childAchievement.unlocked_at).getTime() > Date.now() - 7 * 24 * 60 * 60 * 1000,
+      type: type,
+      progress: isCompleted ? 100 : 0
+    }
+  })
+  
   if (activeTab.value === '全部') {
-    return achievements.value
+    return allAchievements
   }
-  return achievements.value.filter(a => a.type === activeTab.value)
+  return allAchievements.filter(a => a.type === activeTab.value)
 })
+
+// 加载数据
+const loadData = async () => {
+  try {
+    isLoading.value = true
+    
+    // 获取当前用户信息
+    const user = await apiService.getCurrentUser()
+    if (user) {
+      // 获取家长信息
+      const parentInfo = await apiService.getParentInfo(user.id)
+      if (parentInfo) {
+        // 获取孩子列表
+        const children = await apiService.getChildren(parentInfo.id)
+        if (children && children.length > 0) {
+          const currentChild = children[0]
+          
+          // 获取所有成就
+          const allAchievements = await apiService.getAchievements()
+          achievements.value = allAchievements
+          
+          // 获取孩子的成就记录
+          const childAchievementsData = await apiService.getChildAchievements(currentChild.id)
+          childAchievements.value = childAchievementsData
+          
+          // 获取学习统计来计算连续学习天数
+          const stats = await apiService.getDashboardStats(user.id)
+          streakDays.value = stats.current_streak || 0
+        }
+      }
+    }
+  } catch (error) {
+    console.error('加载成就数据失败:', error)
+    // 如果API调用失败，使用模拟数据作为降级方案
+    achievements.value = [
+      {
+        id: '1',
+        name: '初次见面',
+        description: '观看第一个动画',
+        icon_url: '/achievements/first-watch.png',
+        condition_type: 'watch_count',
+        condition_value: 1,
+        reward_points: 10,
+        is_active: true
+      },
+      {
+        id: '2',
+        name: '学习小达人',
+        description: '观看10个动画',
+        icon_url: '/achievements/watch-10.png',
+        condition_type: 'watch_count',
+        condition_value: 10,
+        reward_points: 50,
+        is_active: true
+      },
+      {
+        id: '3',
+        name: '拼音小能手',
+        description: '完成拼音学习',
+        icon_url: '/achievements/pinyin.png',
+        condition_type: 'completion_rate',
+        condition_value: 80,
+        reward_points: 100,
+        is_active: true
+      },
+      {
+        id: '4',
+        name: '汉字小专家',
+        description: '认识50个汉字',
+        icon_url: '/achievements/character.png',
+        condition_type: 'character_count',
+        condition_value: 50,
+        reward_points: 150,
+        is_active: true
+      }
+    ]
+    
+    childAchievements.value = []
+    streakDays.value = 5
+  } finally {
+    isLoading.value = false
+  }
+}
 
 // 导航方法
 const goBack = () => {
@@ -315,6 +323,11 @@ const goToAchievements = () => {
 const goToParentDashboard = () => {
   router.push('/parent')
 }
+
+// 组件挂载时加载数据
+onMounted(() => {
+  loadData()
+})
 </script>
 
 <style scoped>

@@ -27,8 +27,25 @@
       </div>
     </header>
 
+    <!-- 加载状态 -->
+    <div v-if="isLoading" class="container mx-auto px-4 py-8">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div v-for="n in 6" :key="n" class="bg-white rounded-2xl shadow-lg overflow-hidden animate-pulse">
+          <div class="w-full h-48 bg-gray-200"></div>
+          <div class="p-4">
+            <div class="h-4 bg-gray-200 rounded mb-2"></div>
+            <div class="h-3 bg-gray-200 rounded w-3/4 mb-3"></div>
+            <div class="flex justify-between items-center">
+              <div class="h-6 bg-gray-200 rounded w-20"></div>
+              <div class="h-4 w-4 bg-gray-200 rounded"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- 分类标签 -->
-    <div class="container mx-auto px-4 py-4 overflow-x-auto">
+    <div v-if="!isLoading" class="container mx-auto px-4 py-4 overflow-x-auto">
       <div class="flex space-x-2 pb-2">
         <button 
           v-for="category in categories" 
@@ -43,7 +60,7 @@
     </div>
 
     <!-- 动画列表 -->
-    <div class="container mx-auto px-4 py-6">
+    <div v-if="!isLoading" class="container mx-auto px-4 py-6">
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         <div 
           v-for="animation in filteredAnimations" 
@@ -52,7 +69,13 @@
           @click="playAnimation(animation.id)"
         >
           <div class="relative">
-            <img :src="animation.coverUrl" :alt="animation.title" class="w-full h-48 object-cover" />
+            <img 
+              :src="animation.coverUrl" 
+              :alt="animation.title" 
+              class="w-full h-48 object-cover"
+              loading="lazy"
+              @load="onImageLoad"
+            />
             <div class="absolute inset-0 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
               <div class="bg-primary/90 rounded-full h-16 w-16 flex items-center justify-center">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -132,143 +155,30 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
+import { contentService } from '../../services/supabase'
+import { extendedContentService } from '../../services/supabase_extended'
 
 const router = useRouter()
 
 // 状态管理
 const searchQuery = ref('')
 const activeCategory = ref('全部')
-const categories = ['全部', '拼音', '汉字', '词汇', '句子', '故事']
-const animations = ref([
-  // 拼音类动画
-  {
-    id: 1,
-    title: '波波精灵和阿阿精灵',
-    description: '学习声母b和韵母a的发音，跟着可爱的精灵一起学习吧！',
-    coverUrl: '/pinyin-ba.jpg',
-    duration: 5,
-    category: '拼音',
-    isNew: true,
-    isCompleted: true,
-    isFavorite: true
-  },
-  {
-    id: 2,
-    title: '妈妈的魔法拼音课',
-    description: '学习声母m的发音和常见词语',
-    coverUrl: '/pinyin-ma.jpg',
-    duration: 4,
-    category: '拼音',
-    isNew: false,
-    isCompleted: true,
-    isFavorite: false
-  },
-  {
-    id: 3,
-    title: '大老虎的呼噜声',
-    description: '学习声母h的发音技巧',
-    coverUrl: '/pinyin-hu.jpg',
-    duration: 6,
-    category: '拼音',
-    isNew: false,
-    isCompleted: false,
-    isFavorite: true
-  },
-  // 汉字类动画
-  {
-    id: 4,
-    title: '日字的故事',
-    description: '了解日字的演变过程，从甲骨文到现在的楷书',
-    coverUrl: '/character-ri.jpg',
-    duration: 6,
-    category: '汉字',
-    isNew: false,
-    isCompleted: true,
-    isFavorite: false
-  },
-  {
-    id: 5,
-    title: '月字的旅行',
-    description: '探索月字的起源和变化',
-    coverUrl: '/character-yue.jpg',
-    duration: 5,
-    category: '汉字',
-    isNew: false,
-    isCompleted: true,
-    isFavorite: true
-  },
-  {
-    id: 6,
-    title: '山水之间',
-    description: '学习山和水两个汉字的书写和意义',
-    coverUrl: '/character-shanshui.jpg',
-    duration: 7,
-    category: '汉字',
-    isNew: true,
-    isCompleted: false,
-    isFavorite: false
-  },
-  // 词汇类动画
-  {
-    id: 7,
-    title: '动物朋友们',
-    description: '学习各种动物的名称和特点',
-    coverUrl: '/vocabulary-animals.jpg',
-    duration: 8,
-    category: '词汇',
-    isNew: false,
-    isCompleted: false,
-    isFavorite: true
-  },
-  {
-    id: 8,
-    title: '颜色王国大冒险',
-    description: '认识各种颜色的名称',
-    coverUrl: '/vocabulary-colors.jpg',
-    duration: 6,
-    category: '词汇',
-    isNew: false,
-    isCompleted: true,
-    isFavorite: false
-  },
-  // 句子类动画
-  {
-    id: 9,
-    title: '我喜欢...',
-    description: '学习用简单的句子表达喜好',
-    coverUrl: '/sentence-like.jpg',
-    duration: 5,
-    category: '句子',
-    isNew: false,
-    isCompleted: true,
-    isFavorite: false
-  },
-  // 故事类动画
-  {
-    id: 10,
-    title: '小兔子找妈妈',
-    description: '一个温馨的童话故事，学习亲情和友情',
-    coverUrl: '/story-rabbit.jpg',
-    duration: 10,
-    category: '故事',
-    isNew: false,
-    isCompleted: false,
-    isFavorite: true
-  },
-  {
-    id: 11,
-    title: '小猴子摘桃子',
-    description: '关于坚持和努力的故事',
-    coverUrl: '/story-monkey.jpg',
-    duration: 8,
-    category: '故事',
-    isNew: true,
-    isCompleted: false,
-    isFavorite: false
-  }
-])
+const categories = ref(['全部'])
+const animations = ref([])
+const isLoading = ref(true)
+const debounceTimer = ref(null)
+
+// 防抖搜索
+const debouncedSearchQuery = ref('')
+
+watch(searchQuery, (newValue) => {
+  clearTimeout(debounceTimer.value)
+  debounceTimer.value = setTimeout(() => {
+    debouncedSearchQuery.value = newValue
+  }, 300)
+})
 
 // 计算属性：过滤后的动画列表
 const filteredAnimations = computed(() => {
@@ -280,8 +190,8 @@ const filteredAnimations = computed(() => {
   }
   
   // 按搜索词过滤
-  if (searchQuery.value.trim()) {
-    const query = searchQuery.value.toLowerCase().trim()
+  if (debouncedSearchQuery.value.trim()) {
+    const query = debouncedSearchQuery.value.toLowerCase().trim()
     result = result.filter(anim => 
       anim.title.toLowerCase().includes(query) || 
       anim.description.toLowerCase().includes(query)
@@ -316,15 +226,93 @@ const playAnimation = (id) => {
   router.push(`/child/watch/${id}`)
 }
 
+// 图片加载优化
+const onImageLoad = (event) => {
+  // 图片加载完成后可以添加淡入效果
+  event.target.classList.add('opacity-100')
+  event.target.classList.remove('opacity-0')
+}
+
+// 并行加载数据
+const loadData = async () => {
+  try {
+    isLoading.value = true
+    
+    // 并行加载分类和动画数据
+    const [categoryData, animationData] = await Promise.all([
+      extendedContentService.getCategories(),
+      contentService.getAnimations()
+    ])
+    
+    // 处理分类数据
+    categories.value = ['全部', ...categoryData.map(cat => cat.name)]
+    
+    // 处理动画数据
+    animations.value = animationData.map(anim => ({
+      id: anim.id,
+      title: anim.title,
+      description: anim.description,
+      coverUrl: anim.thumbnail_url || '/default-animation.jpg',
+      duration: Math.ceil(anim.duration / 60),
+      category: categoryData.find(cat => cat.id === anim.category_id)?.name || '其他',
+      isNew: new Date(anim.created_at).getTime() > Date.now() - 7 * 24 * 60 * 60 * 1000,
+      isCompleted: false, // 需要根据观看历史计算
+      isFavorite: false // 需要根据用户偏好计算
+    }))
+    
+  } catch (error) {
+    console.error('加载动画库数据失败:', error)
+    // 如果API调用失败，使用默认数据
+    animations.value = [
+      {
+        id: 1,
+        title: '波波精灵和阿阿精灵',
+        description: '学习声母b和韵母a的发音，跟着可爱的精灵一起学习吧！',
+        coverUrl: '/pinyin-ba.jpg',
+        duration: 5,
+        category: '拼音',
+        isNew: true,
+        isCompleted: true,
+        isFavorite: true
+      }
+    ]
+  } finally {
+    isLoading.value = false
+  }
+}
+
 // 组件挂载时初始化
 onMounted(() => {
-  // 这里可以从API获取动画数据
-  console.log('加载动画库数据')
+  loadData()
 })
 </script>
 
 <style scoped>
 .font-display {
   font-family: 'Comic Sans MS', cursive, sans-serif;
+}
+
+/* 图片加载优化 */
+img {
+  opacity: 0;
+  transition: opacity 0.3s ease-in-out;
+}
+
+img.opacity-100 {
+  opacity: 1;
+}
+
+/* 骨架屏动画 */
+.animate-pulse {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: .5;
+  }
 }
 </style>

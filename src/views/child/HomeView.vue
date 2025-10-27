@@ -4,7 +4,7 @@
     <header class="p-4 bg-white shadow-sm">
       <div class="container mx-auto flex justify-between items-center">
         <div class="flex items-center">
-          <img src="/logo.png" alt="萌豆语文动画屋" class="h-10 w-10 rounded-full mr-3" />
+          <img src="/logo.svg" alt="萌豆语文动画屋" class="h-10 w-10 rounded-full mr-3" />
           <h1 class="text-2xl font-bold text-primary font-display">萌豆语文动画屋</h1>
         </div>
         <div class="flex items-center">
@@ -45,7 +45,15 @@
           </span>
           今日推荐
         </h3>
-        <div v-if="dailyRecommendations.length > 0" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        
+        <!-- 加载状态 -->
+        <div v-if="isLoading" class="bg-white rounded-xl p-6 text-center shadow">
+          <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+          <p class="text-gray-600">正在加载推荐内容...</p>
+        </div>
+        
+        <!-- 数据加载完成 -->
+        <div v-else-if="dailyRecommendations.length > 0" class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div v-for="item in dailyRecommendations" :key="item.id" class="animation-card bg-white rounded-2xl shadow-lg overflow-hidden cursor-pointer" @click="playAnimation(item.id)">
             <div class="relative">
               <img :src="item.coverUrl" :alt="item.title" class="w-full h-48 object-cover" />
@@ -207,37 +215,22 @@
 import { ref, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useMainStore } from '../../store'
-import { userService, contentService, learningService } from '../../services/supabase'
+import { auth, userService, contentService, learningService } from '../../services/supabase'
+import { extendedContentService, extendedLearningService } from '../../services/supabase_extended'
 
 const router = useRouter()
 const store = useMainStore()
 
 // 状态管理
 const currentChild = ref(null)
-const dailyRecommendations = ref([
-  {
-    id: 1,
-    title: '波波精灵和阿阿精灵',
-    description: '学习声母b和韵母a的发音',
-    coverUrl: '/pinyin-ba.jpg',
-    duration: 5,
-    category: '拼音'
-  },
-  {
-    id: 2,
-    title: '日字的故事',
-    description: '了解日字的演变过程',
-    coverUrl: '/character-ri.jpg',
-    duration: 6,
-    category: '汉字'
-  }
-])
-const newAchievements = ref(2)
-const weeklyProgress = ref(68)
-const totalDays = ref(7)
-const learnedPinyin = ref(24)
-const learnedCharacters = ref(32)
-const totalAchievements = ref(12)
+const dailyRecommendations = ref([])
+const newAchievements = ref(0)
+const weeklyProgress = ref(0)
+const totalDays = ref(0)
+const learnedPinyin = ref(0)
+const learnedCharacters = ref(0)
+const totalAchievements = ref(0)
+const isLoading = ref(true)
 
 // 方法
 const selectChild = () => {
@@ -281,15 +274,73 @@ const playAnimation = (id) => {
   router.push(`/child/watch/${id}`)
 }
 
+// 加载数据
+const loadData = async () => {
+  try {
+    isLoading.value = true
+    
+    // 获取当前用户信息
+    const user = await auth.getCurrentUser()
+    if (user) {
+      // 获取家长信息
+      const parentInfo = await userService.getParentInfo(user.id)
+      if (parentInfo) {
+        // 获取孩子列表
+        const children = await userService.getChildren(parentInfo.id)
+        if (children && children.length > 0) {
+          currentChild.value = children[0]
+          
+          // 获取今日推荐动画
+          const animations = await contentService.getAnimations({ 
+            ageGroup: 'preschool', 
+            difficulty: 'easy' 
+          })
+          dailyRecommendations.value = animations.slice(0, 2).map(anim => ({
+            id: anim.id,
+            title: anim.title,
+            description: anim.description,
+            coverUrl: anim.thumbnail_url || '/default-animation.jpg',
+            duration: Math.ceil(anim.duration / 60),
+            category: '动画'
+          }))
+          
+          // 获取学习统计
+          const stats = await extendedLearningService.getDashboardStats(user.id)
+          weeklyProgress.value = Math.min(100, Math.round((stats.total_watch_time / 3600) * 10))
+          totalDays.value = stats.current_streak
+          learnedPinyin.value = Math.round(stats.completed_animations * 0.3)
+          learnedCharacters.value = Math.round(stats.completed_animations * 0.4)
+          
+          // 获取成就数据
+          const achievements = await extendedContentService.getChildAchievements(currentChild.value.id)
+          totalAchievements.value = achievements.length
+          newAchievements.value = achievements.filter(a => 
+            new Date(a.unlocked_at).getTime() > Date.now() - 7 * 24 * 60 * 60 * 1000
+          ).length
+        }
+      }
+    }
+  } catch (error) {
+    console.error('加载数据失败:', error)
+    // 如果API调用失败，使用默认数据
+    dailyRecommendations.value = [
+      {
+        id: 1,
+        title: '波波精灵和阿阿精灵',
+        description: '学习声母b和韵母a的发音',
+        coverUrl: '/pinyin-ba.jpg',
+        duration: 5,
+        category: '拼音'
+      }
+    ]
+  } finally {
+    isLoading.value = false
+  }
+}
+
 // 组件挂载时初始化
 onMounted(() => {
-  // 设置当前孩子信息（实际应该从store获取）
-  currentChild.value = {
-    id: '1',
-    name: '小明',
-    age: 5,
-    avatar: '/avatar-1.png'
-  }
+  loadData()
 })
 </script>
 

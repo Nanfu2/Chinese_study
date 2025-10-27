@@ -12,11 +12,7 @@
       <button @click="clearSuccess" class="ml-2 text-white hover:text-gray-200">×</button>
     </div>
     
-    <!-- 护眼模式提示 -->
-    <div v-if="showEyeCareReminder && !isEyeCareMode" class="fixed bottom-4 left-1/2 transform -translate-x-1/2 z-40 bg-primary/90 text-white px-4 py-2 rounded-full shadow-lg animate-fadeIn">
-      建议开启护眼模式，保护孩子视力
-      <button @click="toggleEyeCareMode" class="ml-2 bg-white text-primary px-2 py-1 rounded text-sm">开启</button>
-    </div>
+
     
     <!-- 休息提醒 -->
     <div v-if="showRestReminder" class="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4">
