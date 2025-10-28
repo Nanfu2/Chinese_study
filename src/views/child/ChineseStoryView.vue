@@ -22,8 +22,32 @@
       </div>
     </header>
 
+    <!-- 进度指示器 -->
+    <div class="container mx-auto px-4 py-2">
+      <div class="bg-white rounded-full shadow-sm p-1">
+        <div class="flex items-center justify-between px-4">
+          <span class="text-sm text-gray-600">进度</span>
+          <div class="flex-1 mx-4">
+            <div class="h-2 bg-gray-200 rounded-full overflow-hidden">
+              <div class="h-full bg-gradient-to-r from-red-400 to-orange-500 transition-all duration-500" 
+                   :style="{ width: charactersData.length > 0 ? `${(currentIndex / (charactersData.length - 1)) * 100}%` : '0%' }"></div>
+            </div>
+          </div>
+          <span class="text-sm font-medium text-red-600">{{ currentIndex + 1 }}/{{ charactersData.length || 0 }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 加载状态 -->
+    <div v-if="isLoading" class="container mx-auto px-4 py-6">
+      <div class="bg-white rounded-2xl shadow-lg overflow-hidden p-8 text-center">
+        <div class="animate-spin rounded-full h-16 w-16 border-b-2 border-red-500 mx-auto mb-4"></div>
+        <p class="text-gray-600">正在加载汉字故事...</p>
+      </div>
+    </div>
+
     <!-- 主内容区域 -->
-    <div class="container mx-auto px-4 py-6">
+    <div v-else class="container mx-auto px-4 py-6">
       <!-- 汉字展示 -->
       <div class="bg-white rounded-2xl shadow-lg overflow-hidden mb-6">
         <div class="p-6 text-center">
@@ -94,6 +118,31 @@
         </div>
       </div>
 
+      <!-- 导航按钮 -->
+      <div class="flex justify-between mb-6">
+        <button 
+          @click="previousCharacter" 
+          :disabled="currentIndex === 0"
+          class="bg-red-100 text-red-600 px-6 py-2 rounded-full text-sm font-medium flex items-center disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+          </svg>
+          上一个
+        </button>
+        
+        <button 
+          @click="nextCharacter" 
+          :disabled="currentIndex === charactersData.length - 1"
+          class="bg-red-500 text-white px-6 py-2 rounded-full text-sm font-medium flex items-center disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          下一个
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+          </svg>
+        </button>
+      </div>
+
       <!-- 组词练习 -->
       <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
         <div class="p-6">
@@ -142,6 +191,53 @@
       </div>
     </div>
 
+    <!-- 完成页面 -->
+    <div v-if="showCompletion" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+      <div class="bg-white rounded-3xl shadow-2xl max-w-md mx-4 p-8 text-center">
+        <div class="mb-6">
+          <div class="w-24 h-24 bg-gradient-to-r from-green-400 to-blue-500 rounded-full flex items-center justify-center mx-auto mb-4">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+            </svg>
+          </div>
+          <h2 class="text-2xl font-bold text-gray-800 mb-2">恭喜你！</h2>
+          <p class="text-gray-600">你完成了汉字故事的学习！</p>
+        </div>
+        
+        <div class="bg-gray-50 rounded-xl p-4 mb-6">
+          <div class="grid grid-cols-2 gap-4 text-center">
+            <div>
+              <div class="text-2xl font-bold text-green-600">{{ learnedCharacters }}</div>
+              <div class="text-sm text-gray-500">学习汉字</div>
+            </div>
+            <div>
+              <div class="text-2xl font-bold text-blue-600">{{ totalCharacters }}</div>
+              <div class="text-sm text-gray-500">总汉字数</div>
+            </div>
+          </div>
+          <div class="mt-4">
+            <div class="text-sm text-gray-500 mb-1">完成度</div>
+            <div class="h-2 bg-gray-200 rounded-full overflow-hidden">
+              <div class="h-full bg-gradient-to-r from-green-400 to-blue-500 transition-all duration-500" 
+                   :style="{ width: `${(learnedCharacters / totalCharacters) * 100}%` }"></div>
+            </div>
+            <div class="text-sm font-medium text-gray-700 mt-1">
+              {{ Math.round((learnedCharacters / totalCharacters) * 100) }}%
+            </div>
+          </div>
+        </div>
+        
+        <div class="flex space-x-3">
+          <button @click="restartLearning" class="flex-1 bg-gradient-to-r from-red-500 to-orange-500 text-white py-3 rounded-xl font-semibold shadow hover:shadow-md transition-shadow">
+            再来一次
+          </button>
+          <button @click="goToHome" class="flex-1 bg-gray-200 text-gray-700 py-3 rounded-xl font-semibold hover:bg-gray-300 transition-colors">
+            返回首页
+          </button>
+        </div>
+      </div>
+    </div>
+
     <!-- 底部导航 -->
     <footer class="mt-8 py-4 bg-white border-t">
       <div class="container mx-auto flex justify-center space-x-8">
@@ -186,62 +282,146 @@ const showStrokeAnimation = ref(false)
 const currentIndex = ref(0)
 const charactersData = ref([])
 const isLoading = ref(true)
+const showCompletion = ref(false)
+const learnedCharacters = ref(0)
+const totalCharacters = ref(0)
+
+// 汉字数据
+const chineseCharacters = [
+  {
+    character: '日',
+    pinyin: 'rì',
+    meaning: '太阳',
+    strokeCount: 4,
+    evolution: [
+      { form: '⊙', period: '甲骨文' },
+      { form: '日', period: '金文' },
+      { form: '日', period: '小篆' },
+      { form: '日', period: '楷书' }
+    ],
+    strokeImage: '/strokes/ri.gif',
+    story: '古时候，人们看到天上的太阳，形状圆圆的，就画了一个圆圈来表示。后来这个圆圈慢慢变成了方框，中间加了一点，就变成了现在的"日"字。太阳每天东升西落，给大地带来光明和温暖。',
+    illustration: '/stories/ri.jpg',
+    words: [
+      { text: '太阳', pinyin: 'tài yáng', meaning: '太阳系的中心天体' },
+      { text: '日出', pinyin: 'rì chū', meaning: '太阳从东方升起' },
+      { text: '日光', pinyin: 'rì guāng', meaning: '太阳的光芒' },
+      { text: '日记', pinyin: 'rì jì', meaning: '每天记录的文字' }
+    ]
+  },
+  {
+    character: '月',
+    pinyin: 'yuè',
+    meaning: '月亮',
+    strokeCount: 4,
+    evolution: [
+      { form: '🌙', period: '甲骨文' },
+      { form: '月', period: '金文' },
+      { form: '月', period: '小篆' },
+      { form: '月', period: '楷书' }
+    ],
+    strokeImage: '/strokes/yue.gif',
+    story: '古人观察月亮，发现它有时圆有时缺，就画了一个弯弯的月亮形状。"月"字就像夜空中挂着的月亮，温柔地照亮大地。月亮的变化也启发了人们制定农历。',
+    illustration: '/stories/yue.jpg',
+    words: [
+      { text: '月亮', pinyin: 'yuè liàng', meaning: '地球的卫星' },
+      { text: '月光', pinyin: 'yuè guāng', meaning: '月亮的光芒' },
+      { text: '月饼', pinyin: 'yuè bǐng', meaning: '中秋节的传统食品' },
+      { text: '月份', pinyin: 'yuè fèn', meaning: '时间的单位' }
+    ]
+  },
+  {
+    character: '山',
+    pinyin: 'shān',
+    meaning: '山峰',
+    strokeCount: 3,
+    evolution: [
+      { form: '⛰️', period: '甲骨文' },
+      { form: '山', period: '金文' },
+      { form: '山', period: '小篆' },
+      { form: '山', period: '楷书' }
+    ],
+    strokeImage: '/strokes/shan.gif',
+    story: '"山"字就像三座连绵的山峰。古人看到高耸的山脉，就用三个尖尖的形状来表示。山是大地的脊梁，也是人们向往的高处。',
+    illustration: '/stories/shan.jpg',
+    words: [
+      { text: '山峰', pinyin: 'shān fēng', meaning: '山的最高点' },
+      { text: '山水', pinyin: 'shān shuǐ', meaning: '山和水，指自然风景' },
+      { text: '爬山', pinyin: 'pá shān', meaning: '攀登山峰' },
+      { text: '火山', pinyin: 'huǒ shān', meaning: '喷发岩浆的山' }
+    ]
+  },
+  {
+    character: '水',
+    pinyin: 'shuǐ',
+    meaning: '河流',
+    strokeCount: 4,
+    evolution: [
+      { form: '💧', period: '甲骨文' },
+      { form: '水', period: '金文' },
+      { form: '水', period: '小篆' },
+      { form: '水', period: '楷书' }
+    ],
+    strokeImage: '/strokes/shui.gif',
+    story: '"水"字中间的曲线就像流动的河水，两边的点像是溅起的水花。水是生命之源，滋润万物生长。',
+    illustration: '/stories/shui.jpg',
+    words: [
+      { text: '河水', pinyin: 'hé shuǐ', meaning: '河流中的水' },
+      { text: '水果', pinyin: 'shuǐ guǒ', meaning: '多汁的果实' },
+      { text: '水平', pinyin: 'shuǐ píng', meaning: '平坦的程度' },
+      { text: '水彩', pinyin: 'shuǐ cǎi', meaning: '用水调和的颜料' }
+    ]
+  },
+  {
+    character: '火',
+    pinyin: 'huǒ',
+    meaning: '火焰',
+    strokeCount: 4,
+    evolution: [
+      { form: '🔥', period: '甲骨文' },
+      { form: '火', period: '金文' },
+      { form: '火', period: '小篆' },
+      { form: '火', period: '楷书' }
+    ],
+    strokeImage: '/strokes/huo.gif',
+    story: '"火"字就像燃烧的火焰形状。火给人类带来光明和温暖，也让人们能够烹饪食物。但火也需要小心使用。',
+    illustration: '/stories/huo.jpg',
+    words: [
+      { text: '火焰', pinyin: 'huǒ yàn', meaning: '燃烧的火苗' },
+      { text: '火车', pinyin: 'huǒ chē', meaning: '铁路交通工具' },
+      { text: '火柴', pinyin: 'huǒ chái', meaning: '点火的小木棍' },
+      { text: '火山', pinyin: 'huǒ shān', meaning: '喷发岩浆的山' }
+    ]
+  },
+  {
+    character: '木',
+    pinyin: 'mù',
+    meaning: '树木',
+    strokeCount: 4,
+    evolution: [
+      { form: '🌳', period: '甲骨文' },
+      { form: '木', period: '金文' },
+      { form: '木', period: '小篆' },
+      { form: '木', period: '楷书' }
+    ],
+    strokeImage: '/strokes/mu.gif',
+    story: '"木"字就像一棵树，有树干、树枝和树根。树木是大自然的重要成员，为我们提供氧气和木材。',
+    illustration: '/stories/mu.jpg',
+    words: [
+      { text: '树木', pinyin: 'shù mù', meaning: '高大的植物' },
+      { text: '木头', pinyin: 'mù tou', meaning: '树木的材质' },
+      { text: '木工', pinyin: 'mù gōng', meaning: '制作木器的工匠' },
+      { text: '木瓜', pinyin: 'mù guā', meaning: '一种水果' }
+    ]
+  }
+]
 
 // 加载汉字数据
 const loadCharacters = async () => {
-  try {
-    isLoading.value = true
-    const characters = await extendedContentService.getChineseCharacters(10)
-    
-    charactersData.value = characters.map(char => ({
-      character: char.character,
-      pinyin: char.pinyin,
-      meaning: char.meaning || '暂无描述',
-      strokeCount: 4, // 需要从数据库获取实际笔画数
-      evolution: [
-        { form: char.character, period: '甲骨文' },
-        { form: char.character, period: '金文' },
-        { form: char.character, period: '小篆' },
-        { form: char.character, period: '楷书' }
-      ],
-      strokeImage: char.stroke_order_url || '/strokes/default.gif',
-      story: `"${char.character}"字是一个非常有趣的汉字，它有着悠久的历史和丰富的文化内涵。`,
-      illustration: '/stories/default.jpg',
-      words: [
-        { text: `${char.character}字`, pinyin: char.pinyin, meaning: `关于${char.character}的词语` },
-        { text: '学习', pinyin: 'xué xí', meaning: '获取知识的过程' },
-        { text: '汉字', pinyin: 'hàn zì', meaning: '中文书写系统的基本单位' },
-        { text: '文化', pinyin: 'wén huà', meaning: '人类社会的精神财富' }
-      ]
-    }))
-    
-  } catch (error) {
-    console.error('加载汉字数据失败:', error)
-    // 如果API调用失败，使用默认数据
-    charactersData.value = [
-      {
-        character: '日',
-        pinyin: 'rì',
-        meaning: '太阳',
-        strokeCount: 4,
-        evolution: [
-          { form: '⊙', period: '甲骨文' },
-          { form: '日', period: '金文' },
-          { form: '日', period: '小篆' },
-          { form: '日', period: '楷书' }
-        ],
-        strokeImage: '/strokes/ri.gif',
-        story: '古时候，人们看到天上的太阳，形状圆圆的，就画了一个圆圈来表示。',
-        illustration: '/stories/ri.jpg',
-        words: [
-          { text: '太阳', pinyin: 'tài yáng', meaning: '太阳系的中心天体' },
-          { text: '日出', pinyin: 'rì chū', meaning: '太阳从东方升起' }
-        ]
-      }
-    ]
-  } finally {
-    isLoading.value = false
-  }
+  isLoading.value = true
+  charactersData.value = chineseCharacters
+  totalCharacters.value = chineseCharacters.length
+  isLoading.value = false
 }
 
 // 连线游戏数据
@@ -253,7 +433,22 @@ const matchingItems = [
 ]
 
 // 计算属性
-const currentCharacter = computed(() => charactersData[currentIndex.value])
+const currentCharacter = computed(() => {
+  if (!charactersData.value || charactersData.value.length === 0) {
+    return {
+      character: '',
+      pinyin: '',
+      meaning: '',
+      strokeCount: 0,
+      evolution: [],
+      strokeImage: '',
+      story: '',
+      illustration: '',
+      words: []
+    }
+  }
+  return charactersData.value[currentIndex.value]
+})
 
 // 方法
 const goBack = () => {
@@ -285,6 +480,40 @@ const checkMatching = () => {
   // 这里可以实现连线游戏的答案检查
   console.log('检查连线答案')
 }
+
+const previousCharacter = () => {
+  if (currentIndex.value > 0) {
+    currentIndex.value--
+    showStrokeAnimation.value = false
+  }
+}
+
+const nextCharacter = () => {
+  if (currentIndex.value < charactersData.value.length - 1) {
+    currentIndex.value++
+    showStrokeAnimation.value = false
+    
+    // 记录学习进度
+    if (currentIndex.value + 1 > learnedCharacters.value) {
+      learnedCharacters.value = currentIndex.value + 1
+    }
+  } else {
+    // 学习完成
+    showCompletion.value = true
+  }
+}
+
+const restartLearning = () => {
+  currentIndex.value = 0
+  learnedCharacters.value = 0
+  showCompletion.value = false
+  showStrokeAnimation.value = false
+}
+
+// 组件挂载时加载数据
+onMounted(() => {
+  loadCharacters()
+})
 </script>
 
 <style scoped>

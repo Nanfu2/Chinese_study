@@ -148,31 +148,57 @@
           </div>
 
           <!-- 游戏卡片 -->
-          <div class="grid grid-cols-4 gap-4">
+          <div class="grid grid-cols-3 gap-3">
             <div 
               v-for="(card, index) in gameCards" 
               :key="index"
-              :class="['aspect-square rounded-xl flex items-center justify-center cursor-pointer transition-all duration-300 shadow-sm', 
-                      card.flipped ? 'bg-white border-2 border-green-300' : 'bg-green-200 hover:bg-green-300']"
+              :class="['aspect-square rounded-xl flex items-center justify-center cursor-pointer transition-all duration-300 shadow-sm transform hover:scale-105', 
+                      card.flipped ? 'bg-white border-2 border-green-300' : 
+                      card.matched ? 'bg-green-100 border-2 border-green-400' : 
+                      'bg-green-200 hover:bg-green-300']"
               :disabled="card.flipped || card.matched"
               @click="flipGameCard(index)"
             >
-              <div v-if="card.flipped || card.matched" class="text-center p-2">
-                <img v-if="card.type === 'image'" :src="card.content" :alt="card.alt" class="w-12 h-12 object-contain mx-auto" />
-                <div v-else-if="card.type === 'word'" class="text-lg font-bold text-green-700">{{ card.content }}</div>
-                <div v-else-if="card.type === 'pinyin'" class="text-gray-600">{{ card.content }}</div>
+              <div v-if="card.flipped || card.matched" class="text-center p-2 w-full">
+                <img v-if="card.type === 'image'" :src="card.content" :alt="card.alt" class="w-10 h-10 object-contain mx-auto mb-1" />
+                <div v-else-if="card.type === 'word'" class="text-sm font-bold text-green-700 leading-tight">{{ card.content }}</div>
+                <div v-else-if="card.type === 'pinyin'" class="text-xs text-gray-600 leading-tight">{{ card.content }}</div>
               </div>
               <div v-else class="text-green-500">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
                 </svg>
               </div>
             </div>
           </div>
 
+          <!-- 游戏完成庆祝界面 -->
+          <div v-if="gameCompleted" class="mt-6 text-center bg-gradient-to-r from-green-100 to-blue-100 rounded-2xl p-6 animate-pulse">
+            <div class="flex justify-center mb-4">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 text-yellow-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+            <h3 class="text-2xl font-bold text-green-600 mb-2">恭喜你！</h3>
+            <p class="text-gray-700 mb-4">你成功完成了配对游戏！</p>
+            <div class="grid grid-cols-2 gap-4 mb-4">
+              <div class="bg-white rounded-lg p-3">
+                <div class="text-sm text-gray-600">用时</div>
+                <div class="text-lg font-bold text-green-600">{{ gameTime }}秒</div>
+              </div>
+              <div class="bg-white rounded-lg p-3">
+                <div class="text-sm text-gray-600">学习词汇</div>
+                <div class="text-lg font-bold text-green-600">{{ learnedWords.size }}个</div>
+              </div>
+            </div>
+            <button @click="resetGame" class="bg-green-500 text-white px-8 py-3 rounded-full text-lg font-medium hover:bg-green-600 transition-colors">
+              再玩一次
+            </button>
+          </div>
+
           <!-- 游戏控制 -->
-          <div class="mt-6 text-center">
-            <button @click="resetGame" class="bg-green-500 text-white px-6 py-2 rounded-full text-sm font-medium">
+          <div v-else class="mt-6 text-center">
+            <button @click="resetGame" class="bg-green-500 text-white px-6 py-2 rounded-full text-sm font-medium hover:bg-green-600 transition-colors">
               重新开始游戏
             </button>
           </div>
@@ -213,7 +239,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
@@ -228,6 +254,8 @@ const gameTime = ref(0)
 const gameCards = ref([])
 const flippedCards = ref([])
 const timer = ref(null)
+const gameCompleted = ref(false)
+const learnedWords = ref(new Set())
 
 // 词汇数据
 const vocabularyData = [
@@ -317,11 +345,156 @@ const vocabularyData = [
     meaning: '像太阳一样的颜色',
     image: '/vocabulary/yellow.jpg',
     category: '颜色'
+  },
+  // 数字类
+  {
+    word: '一',
+    pinyin: 'yī',
+    meaning: '数字1',
+    image: '/vocabulary/one.jpg',
+    category: '数字'
+  },
+  {
+    word: '二',
+    pinyin: 'èr',
+    meaning: '数字2',
+    image: '/vocabulary/two.jpg',
+    category: '数字'
+  },
+  {
+    word: '三',
+    pinyin: 'sān',
+    meaning: '数字3',
+    image: '/vocabulary/three.jpg',
+    category: '数字'
+  },
+  {
+    word: '四',
+    pinyin: 'sì',
+    meaning: '数字4',
+    image: '/vocabulary/four.jpg',
+    category: '数字'
+  },
+  // 家庭类
+  {
+    word: '爸爸',
+    pinyin: 'bà ba',
+    meaning: '父亲',
+    image: '/vocabulary/father.jpg',
+    category: '家庭'
+  },
+  {
+    word: '妈妈',
+    pinyin: 'mā ma',
+    meaning: '母亲',
+    image: '/vocabulary/mother.jpg',
+    category: '家庭'
+  },
+  {
+    word: '哥哥',
+    pinyin: 'gē ge',
+    meaning: '哥哥',
+    image: '/vocabulary/brother.jpg',
+    category: '家庭'
+  },
+  {
+    word: '姐姐',
+    pinyin: 'jiě jie',
+    meaning: '姐姐',
+    image: '/vocabulary/sister.jpg',
+    category: '家庭'
+  },
+  // 食物类
+  {
+    word: '米饭',
+    pinyin: 'mǐ fàn',
+    meaning: '主食',
+    image: '/vocabulary/rice.jpg',
+    category: '食物'
+  },
+  {
+    word: '面条',
+    pinyin: 'miàn tiáo',
+    meaning: '面食',
+    image: '/vocabulary/noodles.jpg',
+    category: '食物'
+  },
+  {
+    word: '牛奶',
+    pinyin: 'niú nǎi',
+    meaning: '饮品',
+    image: '/vocabulary/milk.jpg',
+    category: '食物'
+  },
+  {
+    word: '鸡蛋',
+    pinyin: 'jī dàn',
+    meaning: '蛋类',
+    image: '/vocabulary/egg.jpg',
+    category: '食物'
+  },
+  // 交通工具类
+  {
+    word: '汽车',
+    pinyin: 'qì chē',
+    meaning: '陆地交通工具',
+    image: '/vocabulary/car.jpg',
+    category: '交通工具'
+  },
+  {
+    word: '飞机',
+    pinyin: 'fēi jī',
+    meaning: '空中交通工具',
+    image: '/vocabulary/airplane.jpg',
+    category: '交通工具'
+  },
+  {
+    word: '火车',
+    pinyin: 'huǒ chē',
+    meaning: '铁路交通工具',
+    image: '/vocabulary/train.jpg',
+    category: '交通工具'
+  },
+  {
+    word: '自行车',
+    pinyin: 'zì xíng chē',
+    meaning: '人力交通工具',
+    image: '/vocabulary/bicycle.jpg',
+    category: '交通工具'
+  },
+  // 学校用品类
+  {
+    word: '书包',
+    pinyin: 'shū bāo',
+    meaning: '装书的包',
+    image: '/vocabulary/backpack.jpg',
+    category: '学校用品'
+  },
+  {
+    word: '铅笔',
+    pinyin: 'qiān bǐ',
+    meaning: '写字工具',
+    image: '/vocabulary/pencil.jpg',
+    category: '学校用品'
+  },
+  {
+    word: '书本',
+    pinyin: 'shū běn',
+    meaning: '学习材料',
+    image: '/vocabulary/book.jpg',
+    category: '学校用品'
+  },
+  {
+    word: '橡皮',
+    pinyin: 'xiàng pí',
+    meaning: '擦除工具',
+    image: '/vocabulary/eraser.jpg',
+    category: '学校用品'
   }
 ]
 
 // 词汇分类
-const vocabularyCategories = ['动物', '水果', '颜色']
+const vocabularyCategories = ['动物', '水果', '颜色', '数字', '家庭', '食物', '交通工具', '学校用品']
 
 // 计算属性
 const filteredVocabulary = computed(() => {
@@ -413,19 +586,6 @@ const generateGameCards = () => {
     })
   })
   
-  // 如果卡片数量不足8张，添加一些空卡片
-  while (cards.length < 12) {
-    cards.push({
-      id: cards.length,
-      type: 'empty',
-      content: '',
-      alt: '',
-      flipped: false,
-      matched: false,
-      pairId: 'empty' + cards.length
-    })
-  }
-  
   // 洗牌
   gameCards.value = cards.sort(() => 0.5 - Math.random())
 }
@@ -448,7 +608,19 @@ const flipGameCard = (index) => {
       card1.matched = true
       card2.matched = true
       matches.value++
+      
+      // 添加到已学习词汇
+      if (card1.type === 'word') {
+        learnedWords.value.add(card1.pairId)
+      }
+      
       flippedCards.value = []
+      
+      // 检查游戏是否完成
+      if (matches.value === 4) {
+        gameCompleted.value = true
+        stopTimer()
+      }
     } else {
       // 匹配失败，稍后翻回去
       setTimeout(() => {
@@ -465,6 +637,7 @@ const resetGame = () => {
   matches.value = 0
   gameTime.value = 0
   flippedCards.value = []
+  gameCompleted.value = false
   startTimer()
 }
 

@@ -259,15 +259,15 @@ const goToPinyinTheater = () => {
 }
 
 const goToChineseStories = () => {
-  router.push('/child/chinese-stories')
+  router.push('/child/chinese-story')
 }
 
 const goToVocabularyGarden = () => {
-  router.push('/child/vocabulary-garden')
+  router.push('/child/vocabulary-playground')
 }
 
 const goToSentencePractice = () => {
-  router.push('/child/sentence-practice')
+  router.push('/child/short-sentence-practice')
 }
 
 const playAnimation = (id) => {
