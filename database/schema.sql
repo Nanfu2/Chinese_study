@@ -14,6 +14,7 @@ CREATE TABLE IF NOT EXISTS parents (
     user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
     name VARCHAR(100) NOT NULL,
     contact_phone VARCHAR(20),
+    avatar_url TEXT,
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW(),
     UNIQUE(user_id)
@@ -206,3 +207,39 @@ INSERT INTO achievements (name, description, condition_type, condition_value, re
 ('学习小达人', '观看10个动画', 'watch_count', 10, 50),
 ('拼音小能手', '完成拼音学习', 'completion_rate', 80, 100),
 ('汉字小专家', '认识50个汉字', 'character_count', 50, 150);
+
+-- 插入模拟数据：测试用户（仅限开发环境）
+-- 注意：在生产环境中应通过 Supabase Auth API 创建用户
+INSERT INTO auth.users (id, email, encrypted_password, created_at, updated_at) VALUES
+('550e8400-e29b-41d4-a716-446655440011', 'parent1@example.com', crypt('password123', gen_salt('bf')), NOW(), NOW());
+
+-- 插入模拟数据：家长和孩子
+INSERT INTO parents (id, user_id, name, contact_phone, avatar_url) VALUES
+('550e8400-e29b-41d4-a716-446655440010', '550e8400-e29b-41d4-a716-446655440011', '张家长', '13800138000', '/avatars/parent1.jpg');
+
+INSERT INTO children (id, parent_id, name, age, avatar_url, learning_level) VALUES
+('550e8400-e29b-41d4-a716-446655440000', '550e8400-e29b-41d4-a716-446655440010', '张小豆', 6, '/avatars/child1.jpg', 'beginner'),
+('550e8400-e29b-41d4-a716-446655440001', '550e8400-e29b-41d4-a716-446655440010', '张小萌', 5, '/avatars/child2.jpg', 'beginner');
+
+-- 插入模拟数据：动画内容（使用新的 UUID 避免冲突）
+INSERT INTO animations (id, title, description, video_url, thumbnail_url, duration, category_id, age_group, difficulty) VALUES
+(gen_random_uuid(), '拼音 b', '学习拼音 b', '/videos/pinyin-b.mp4', '/thumbnails/pinyin-b.jpg', 300, (SELECT id FROM categories WHERE name = '拼音学习'), 'preschool', 'easy'),
+(gen_random_uuid(), '拼音 p', '学习拼音 p', '/videos/pinyin-p.mp4', '/thumbnails/pinyin-p.jpg', 240, (SELECT id FROM categories WHERE name = '拼音学习'), 'preschool', 'easy'),
+(gen_random_uuid(), '汉字 人', '学习汉字“人”', '/videos/character-ren.mp4', '/thumbnails/character-ren.jpg', 360, (SELECT id FROM categories WHERE name = '汉字启蒙'), 'kindergarten', 'medium'),
+(gen_random_uuid(), '儿歌 小星星', '经典儿歌', '/videos/little-star.mp4', '/thumbnails/little-star.jpg', 180, (SELECT id FROM categories WHERE name = '儿歌童谣'), 'preschool', 'easy')
+ON CONFLICT (id) DO NOTHING;
+
+-- 插入模拟数据：观看历史
+INSERT INTO watch_history (child_id, animation_id, watch_duration, completed, watched_at) VALUES
+('550e8400-e29b-41d4-a716-446655440000', '550e8400-e29b-41d4-a716-446655440001', 300, TRUE, '2025-10-25 10:00:00'),
+('550e8400-e29b-41d4-a716-446655440000', '550e8400-e29b-41d4-a716-446655440002', 180, FALSE, '2025-10-26 11:30:00'),
+('550e8400-e29b-41d4-a716-446655440000', '550e8400-e29b-41d4-a716-446655440003', 420, TRUE, '2025-10-27 09:15:00'),
+('550e8400-e29b-41d4-a716-446655440001', '550e8400-e29b-41d4-a716-446655440001', 240, TRUE, '2025-10-25 14:00:00'),
+('550e8400-e29b-41d4-a716-446655440001', '550e8400-e29b-41d4-a716-446655440004', 360, FALSE, '2025-10-26 16:45:00');
+
+-- 插入模拟数据：互动记录
+INSERT INTO interactions (child_id, animation_id, interaction_type, interaction_data) VALUES
+('550e8400-e29b-41d4-a716-446655440000', '550e8400-e29b-41d4-a716-446655440001', 'quiz_answer', '{"score": 80, "answers": ["A", "B", "C"]}'),
+('550e8400-e29b-41d4-a716-446655440000', '550e8400-e29b-41d4-a716-446655440002', 'like', '{"value": true}'),
+('550e8400-e29b-41d4-a716-446655440001', '550e8400-e29b-41d4-a716-446655440003', 'quiz_answer', '{"score": 90, "answers": ["A", "B", "D"]}'),
+('550e8400-e29b-41d4-a716-446655440001', '550e8400-e29b-41d4-a716-446655440004', 'share', '{"platform": "wechat"}');
