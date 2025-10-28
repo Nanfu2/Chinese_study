@@ -23,8 +23,83 @@
       </div>
     </header>
 
-    <!-- 成就概览 -->
-    <div class="container mx-auto px-4 py-6">
+    <!-- 加载动画 -->
+    <div v-if="isLoading" class="container mx-auto px-4 py-6">
+      <!-- 顶部加载动画 -->
+      <div class="bg-white rounded-2xl shadow-lg overflow-hidden mb-6">
+        <div class="p-6">
+          <div class="animate-pulse">
+            <div class="h-6 bg-gray-200 rounded w-1/4 mb-4"></div>
+            
+            <!-- 统计卡片加载动画 -->
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
+              <div class="bg-gray-100 rounded-xl p-4 text-center">
+                <div class="h-8 bg-gray-200 rounded w-3/4 mx-auto mb-2"></div>
+                <div class="h-4 bg-gray-200 rounded w-1/2 mx-auto"></div>
+              </div>
+              <div class="bg-gray-100 rounded-xl p-4 text-center">
+                <div class="h-8 bg-gray-200 rounded w-3/4 mx-auto mb-2"></div>
+                <div class="h-4 bg-gray-200 rounded w-1/2 mx-auto"></div>
+              </div>
+              <div class="bg-gray-100 rounded-xl p-4 text-center">
+                <div class="h-8 bg-gray-200 rounded w-3/4 mx-auto mb-2"></div>
+                <div class="h-4 bg-gray-200 rounded w-1/2 mx-auto"></div>
+              </div>
+              <div class="bg-gray-100 rounded-xl p-4 text-center">
+                <div class="h-8 bg-gray-200 rounded w-3/4 mx-auto mb-2"></div>
+                <div class="h-4 bg-gray-200 rounded w-1/2 mx-auto"></div>
+              </div>
+            </div>
+
+            <!-- 进度条加载动画 -->
+            <div class="bg-gray-100 rounded-xl p-4 mb-6">
+              <div class="flex items-center justify-between mb-2">
+                <div class="h-4 bg-gray-200 rounded w-1/6"></div>
+                <div class="h-4 bg-gray-200 rounded w-1/8"></div>
+              </div>
+              <div class="w-full bg-gray-200 rounded-full h-2.5 mb-1">
+                <div class="bg-gray-300 h-2.5 rounded-full w-1/3"></div>
+              </div>
+              <div class="h-3 bg-gray-200 rounded w-1/3 ml-auto"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 分类标签加载动画 -->
+      <div class="flex space-x-2 mt-6 mb-4 overflow-x-auto pb-2">
+        <div v-for="i in 5" :key="i" class="animate-pulse">
+          <div class="h-8 bg-gray-200 rounded-full w-16"></div>
+        </div>
+      </div>
+
+      <!-- 成就列表加载动画 -->
+      <div class="space-y-4">
+        <div v-for="i in 4" :key="i" class="bg-white rounded-xl overflow-hidden shadow-sm animate-pulse">
+          <div class="p-4 flex items-center">
+            <div class="relative mr-4">
+              <div class="w-16 h-16 bg-gray-200 rounded-full"></div>
+            </div>
+            <div class="flex-1">
+              <div class="h-5 bg-gray-200 rounded w-3/4 mb-2"></div>
+              <div class="h-4 bg-gray-200 rounded w-full mb-3"></div>
+              <div class="flex items-center">
+                <div class="flex items-center mr-4">
+                  <div class="h-4 bg-gray-200 rounded w-16"></div>
+                </div>
+                <div class="h-6 bg-gray-200 rounded-full w-16"></div>
+              </div>
+            </div>
+            <div class="ml-4">
+              <div class="h-8 bg-gray-200 rounded-full w-16"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 成就内容 -->
+    <div v-else class="container mx-auto px-4 py-6">
       <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
         <div class="p-6">
           <h2 class="text-lg font-semibold text-gray-800 mb-4">成就概览</h2>

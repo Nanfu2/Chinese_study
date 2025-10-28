@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
+import { auth } from '../services/supabase'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -117,13 +118,12 @@ const router = createRouter({
 })
 
 // 路由守卫
-router.beforeEach((to, from, next) => {
+router.beforeEach(async (to, from, next) => {
   // 检查是否需要认证
   if (to.matched.some(record => record.meta.requiresAuth)) {
     try {
-      // 从localStorage获取用户信息用于验证
-      const userStr = localStorage.getItem('user')
-      const user = userStr ? JSON.parse(userStr) : null
+      // 从Supabase获取当前用户信息
+      const user = await auth.getCurrentUser()
       
       // 简化判断逻辑，只要用户存在就允许访问
       // 完全移除角色验证，确保家长端和儿童端之间可以自由切换

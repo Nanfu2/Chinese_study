@@ -11,52 +11,7 @@ export const auth = {
   // 登录
   signIn: async (email, password) => {
     try {
-      // 模拟环境下的登录功能
-      // 检查是否为开发环境或Supabase配置不完整
-      const isDevelopment = import.meta.env.DEV || !import.meta.env.VITE_SUPABASE_URL;
-      
-      if (isDevelopment) {
-        // 模拟登录成功响应
-        console.log('模拟登录:', { email, password });
-        
-        // 模拟简单的验证逻辑
-        if (!email || !password) {
-          throw new Error('请输入邮箱和密码');
-        }
-        if (password.length < 6) {
-          throw new Error('密码长度至少为6个字符');
-        }
-        
-        // 创建更完整的模拟用户数据
-        const mockUser = {
-          id: `user_${email.replace(/[^a-z0-9]/g, '')}_${Date.now()}`,
-          email: email,
-          user_metadata: {
-            role: email.includes('admin') ? 'admin' : 'parent',
-            created_at: new Date().toISOString()
-          },
-          aud: 'authenticated',
-          email_confirmed_at: new Date().toISOString(),
-          // 确保返回的数据结构与store期望的一致
-          app_metadata: { provider: 'email' },
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
-        };
-        
-        // 在模拟环境中保存用户到localStorage
-        localStorage.setItem('user', JSON.stringify(mockUser));
-        
-        return {
-          user: mockUser,
-          session: {
-            access_token: 'mock_access_token_' + Date.now(),
-            refresh_token: 'mock_refresh_token_' + Date.now(),
-            expires_at: Date.now() + 3600000 // 1小时后过期
-          }
-        };
-      }
-      
-      // 生产环境使用真实Supabase
+      // 直接使用真实Supabase认证
       const { data, error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) throw error;
       return data;
@@ -69,52 +24,7 @@ export const auth = {
   // 注册
   signUp: async (email, password, userData) => {
     try {
-      // 模拟环境下的注册功能
-      // 检查是否为开发环境或Supabase配置不完整
-      const isDevelopment = import.meta.env.DEV || !import.meta.env.VITE_SUPABASE_URL;
-      
-      if (isDevelopment) {
-        // 模拟注册成功响应
-        console.log('模拟注册:', { email, password, userData });
-        
-        // 验证输入
-        if (!email || !password) {
-          throw new Error('请输入邮箱和密码');
-        }
-        if (password.length < 6) {
-          throw new Error('密码长度至少为6个字符');
-        }
-        
-        // 创建更完整的模拟用户数据
-        const mockUser = {
-          id: `user_${Date.now()}`,
-          email: email,
-          user_metadata: {
-            ...userData,
-            created_at: new Date().toISOString()
-          },
-          aud: 'authenticated',
-          email_confirmed_at: new Date().toISOString(),
-          // 确保返回的数据结构与store期望的一致
-          app_metadata: { provider: 'email' },
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
-        };
-        
-        // 在模拟环境中保存用户到localStorage
-        localStorage.setItem('user', JSON.stringify(mockUser));
-        
-        return {
-          user: mockUser,
-          session: {
-            access_token: 'mock_access_token_' + Date.now(),
-            refresh_token: 'mock_refresh_token_' + Date.now(),
-            expires_at: Date.now() + 3600000 // 1小时后过期
-          }
-        };
-      }
-      
-      // 生产环境使用真实Supabase
+      // 直接使用真实Supabase注册
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
@@ -133,17 +43,7 @@ export const auth = {
   // 登出
   signOut: async () => {
     try {
-      // 模拟环境下的登出功能
-      const isDevelopment = import.meta.env.DEV || !import.meta.env.VITE_SUPABASE_URL;
-      
-      if (isDevelopment) {
-        console.log('模拟登出');
-        // 在模拟环境中清除本地存储的用户信息
-        localStorage.removeItem('user');
-        return;
-      }
-      
-      // 生产环境使用真实Supabase
+      // 直接使用真实Supabase登出
       const { error } = await supabase.auth.signOut();
       if (error) throw error;
     } catch (error) {
@@ -155,32 +55,7 @@ export const auth = {
   // 获取当前用户
   getCurrentUser: async () => {
     try {
-      // 模拟环境下获取当前用户
-      const isDevelopment = import.meta.env.DEV || !import.meta.env.VITE_SUPABASE_URL;
-      
-      if (isDevelopment) {
-        console.log('模拟获取当前用户');
-        // 从本地存储获取模拟用户（如果有）
-        const savedUser = localStorage.getItem('user');
-        if (savedUser) {
-          try {
-            const userData = JSON.parse(savedUser);
-            // 确保返回的数据结构完整
-            if (!userData.user_metadata) {
-              userData.user_metadata = {};
-            }
-            return userData;
-          } catch (parseError) {
-            console.error('解析用户数据失败:', parseError);
-            localStorage.removeItem('user');
-            return null;
-          }
-        }
-        // 如果没有保存的用户，返回null
-        return null;
-      }
-      
-      // 生产环境使用真实Supabase
+      // 直接使用真实Supabase获取当前用户
       const { data: { user } } = await supabase.auth.getUser();
       return user;
     } catch (error) {

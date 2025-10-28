@@ -25,11 +25,6 @@ export const useMainStore = defineStore('main', () => {
     user.value = userData
     isAuthenticated.value = !!userData
     
-    // 在模拟环境中保存用户到localStorage
-    if (userData && (import.meta.env.DEV || !import.meta.env.VITE_SUPABASE_URL)) {
-      localStorage.setItem('user', JSON.stringify(userData))
-    }
-    
     // 如果是家长，获取孩子列表
     if (userData && userData.user_metadata?.role === 'parent') {
       await loadChildren(userData.id)
@@ -112,10 +107,9 @@ export const useMainStore = defineStore('main', () => {
   
   const loadUser = async () => {
     try {
-      // 从localStorage获取用户信息
-      const savedUser = localStorage.getItem('user')
-      if (savedUser) {
-        const userData = JSON.parse(savedUser)
+      // 从Supabase获取当前用户信息
+      const userData = await auth.getCurrentUser()
+      if (userData) {
         await setUser(userData)
       }
     } catch (err) {

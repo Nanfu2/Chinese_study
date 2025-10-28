@@ -3,34 +3,10 @@
     <div class="max-w-md w-full space-y-8 bg-white p-8 rounded-xl shadow-lg border border-gray-100">
       <div class="text-center">
         <h2 class="text-4xl font-bold text-primary mb-2">萌豆语文动画屋</h2>
-        <p class="text-gray-600">选择登录角色，开启语文学习之旅</p>
+        <p class="text-gray-600">登录开启语文学习之旅</p>
       </div>
 
       <form @submit.prevent="handleLogin" class="space-y-6">
-        <!-- 角色选择 -->
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-2">登录角色</label>
-          <div class="flex space-x-4">
-            <label class="flex items-center space-x-2 cursor-pointer">
-              <input
-                type="radio"
-                v-model="selectedRole"
-                value="parent"
-                class="h-4 w-4 text-primary focus:ring-primary border-gray-300"
-              />
-              <span class="text-gray-700">家长</span>
-            </label>
-            <label class="flex items-center space-x-2 cursor-pointer">
-              <input
-                type="radio"
-                v-model="selectedRole"
-                value="child"
-                class="h-4 w-4 text-primary focus:ring-primary border-gray-300"
-              />
-              <span class="text-gray-700">儿童</span>
-            </label>
-          </div>
-        </div>
         
         <div>
           <label for="email" class="block text-sm font-medium text-gray-700 mb-1">邮箱地址</label>
@@ -103,7 +79,6 @@ const password = ref('')
 const showPassword = ref(false)
 const error = ref('')
 const isLoading = ref(false)
-const selectedRole = ref('parent') // 默认选择家长角色
 
 const handleLogin = async () => {
   error.value = ''
@@ -112,29 +87,8 @@ const handleLogin = async () => {
   try {
     await store.login(email.value, password.value)
     
-    // 根据选择的角色和用户实际角色进行重定向
-    if (selectedRole.value === 'parent' && store.isParent) {
-      router.push('/parent')
-    } else if (selectedRole.value === 'child') {
-      // 对于儿童登录，确保用户有相应权限后跳转到儿童界面
-      if (store.user && store.user.user_metadata?.role === 'child') {
-        router.push('/child')
-      } else if (store.isParent) {
-        // 如果是家长选择了儿童角色，直接跳转到儿童主页
-        router.push('/child')
-      } else {
-        throw new Error('您没有儿童端的访问权限')
-      }
-    } else if (store.isAdmin) {
-      router.push('/admin')
-    } else {
-      // 默认根据用户实际角色跳转
-      if (store.isParent) {
-        router.push('/parent')
-      } else {
-        router.push('/child')
-      }
-    }
+    // 登录后直接跳转到儿童端
+    router.push('/child')
   } catch (err) {
     error.value = err.message || '登录失败，请检查邮箱和密码'
   } finally {

@@ -4,6 +4,7 @@ import App from './App.vue'
 import router from './router'
 import './assets/main.css'
 import { useMainStore } from './store'
+import { auth } from './services/supabase'
 
 // 创建应用实例
 const app = createApp(App)
@@ -17,14 +18,14 @@ app.use(router)
 // 挂载应用
 app.mount('#app')
 
-// 应用挂载后从localStorage恢复用户状态
+// 应用挂载后从Supabase恢复用户状态
 // 使用更安全的方式处理用户状态恢复
-setTimeout(() => {
+setTimeout(async () => {
   try {
     const store = useMainStore()
-    const savedUser = localStorage.getItem('user')
-    if (savedUser) {
-      const userData = JSON.parse(savedUser)
+    // 从Supabase获取当前用户信息
+    const userData = await auth.getCurrentUser()
+    if (userData) {
       // 直接设置状态而不是调用异步方法
       store.user = userData
       store.isAuthenticated = !!userData

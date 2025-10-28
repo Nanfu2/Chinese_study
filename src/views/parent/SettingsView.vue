@@ -64,16 +64,6 @@
       
       <div class="space-y-6">
         <div class="flex items-center justify-between">
-          <label class="text-gray-700">护眼模式</label>
-          <input 
-            v-model="systemSettings.eyeCareMode" 
-            type="checkbox" 
-            class="w-5 h-5 text-primary border-gray-300 rounded focus:ring-primary"
-            @change="saveSystemSettings"
-          />
-        </div>
-        
-        <div class="flex items-center justify-between">
           <label class="text-gray-700">休息提醒</label>
           <input 
             v-model="systemSettings.restReminder" 
@@ -146,7 +136,6 @@ const switchToChildMode = () => {
 
 // 系统设置
 const systemSettings = reactive({
-  eyeCareMode: false,
   restReminder: true,
   autoPlay: false
 })
@@ -181,10 +170,7 @@ const saveSystemSettings = () => {
   try {
     localStorage.setItem('systemSettings', JSON.stringify(systemSettings))
     
-    // 触发全局设置更新
-    if (window.__VUE_APP_INSTANCE__) {
-      window.__VUE_APP_INSTANCE__.toggleEyeCareMode(systemSettings.eyeCareMode)
-    }
+
   } catch (err) {
     console.error('保存系统设置失败:', err)
   }

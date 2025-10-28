@@ -26,7 +26,7 @@
     </div>
     
     <!-- 主内容区域 -->
-    <div :class="{ 'eye-care': isEyeCareMode }">
+    <div>
       <RouterView v-slot="{ Component }">
         <transition name="fade" mode="out-in">
           <component :is="Component" />
@@ -44,8 +44,6 @@ import { useMainStore } from './store'
 const store = useMainStore()
 const error = ref('')
 const successMessage = ref('')
-const isEyeCareMode = ref(false)
-const showEyeCareReminder = ref(false)
 const showRestReminder = ref(false)
 let watchTimeInterval = null
 let watchTime = 0
@@ -74,13 +72,7 @@ const clearSuccess = () => {
   successMessage.value = ''
 }
 
-// 护眼模式切换
-const toggleEyeCareMode = () => {
-  isEyeCareMode.value = !isEyeCareMode.value
-  showEyeCareReminder.value = false
-  // 存储到本地
-  localStorage.setItem('eyeCareMode', isEyeCareMode.value.toString())
-}
+
 
 // 休息提醒相关
 const startWatchTimeTracking = () => {
@@ -111,16 +103,7 @@ onMounted(async () => {
     console.log('未登录或会话已过期')
   }
   
-  // 恢复护眼模式设置
-  const savedEyeCareMode = localStorage.getItem('eyeCareMode')
-  if (savedEyeCareMode === 'true') {
-    isEyeCareMode.value = true
-  }
-  
-  // 延迟显示护眼模式提示
-  setTimeout(() => {
-    showEyeCareReminder.value = true
-  }, 30000)
+
   
   // 开始计时
   startWatchTimeTracking()
