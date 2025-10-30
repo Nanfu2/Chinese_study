@@ -208,6 +208,37 @@
         </button>
       </div>
     </footer>
+
+    <!-- 孩子选择弹窗 -->
+    <div v-if="showChildSelector" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div class="bg-white rounded-2xl shadow-xl max-w-md w-full mx-4">
+        <div class="p-6">
+          <h3 class="text-xl font-bold text-gray-800 mb-4">选择学习者</h3>
+          <div class="space-y-3 max-h-64 overflow-y-auto">
+            <div v-for="child in store.children" :key="child.id" 
+                 @click="confirmChildSelection(child)"
+                 class="flex items-center p-3 rounded-lg border border-gray-200 hover:bg-blue-50 cursor-pointer transition-colors">
+              <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center mr-3">
+                <span class="text-blue-600 font-bold">{{ child.name.charAt(0) }}</span>
+              </div>
+              <div>
+                <p class="font-medium text-gray-800">{{ child.name }}</p>
+                <p class="text-sm text-gray-500">{{ child.age }}岁 · {{ getLearningLevelText(child.learning_level) }}</p>
+              </div>
+              <div class="ml-auto">
+                <svg v-if="currentChild?.id === child.id" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-500" viewBox="0 0 20 20" fill="currentColor">
+                  <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                </svg>
+              </div>
+            </div>
+          </div>
+          <div class="mt-6 flex justify-end space-x-3">
+            <button @click="showChildSelector = false" class="px-4 py-2 text-gray-600 hover:text-gray-800">取消</button>
+            <button @click="goToParentDashboard" class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-blue-600">管理孩子</button>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -231,11 +262,30 @@ const learnedPinyin = ref(0)
 const learnedCharacters = ref(0)
 const totalAchievements = ref(0)
 const isLoading = ref(true)
+const showChildSelector = ref(false)
 
 // 方法
 const selectChild = () => {
-  // 选择孩子的逻辑
-  console.log('选择孩子')
+  // 显示孩子选择弹窗
+  showChildSelector.value = true
+}
+
+const confirmChildSelection = (child) => {
+  currentChild.value = child
+  store.setCurrentChild(child)
+  showChildSelector.value = false
+  
+  // 重新加载当前孩子的数据
+  loadData()
+}
+
+const getLearningLevelText = (level) => {
+  const levelMap = {
+    'beginner': '初级',
+    'intermediate': '中级',
+    'advanced': '高级'
+  }
+  return levelMap[level] || '初级'
 }
 
 const goToHome = () => {
@@ -274,6 +324,55 @@ const playAnimation = (id) => {
   router.push(`/child/watch/${id}`)
 }
 
+// 获取每日推荐动画（按顺序显示，不因观看而消失）
+const getDailyRecommendations = async (child) => {
+  try {
+    // 获取所有动画（按sort_order排序）
+    const animations = await contentService.getAnimations()
+    
+    if (animations.length === 0) {
+      return []
+    }
+    
+    // 获取当前日期作为种子，确保每天显示相同的顺序
+    const today = new Date()
+    const seed = today.getFullYear() * 10000 + (today.getMonth() + 1) * 100 + today.getDate()
+    
+    // 使用日期种子计算今天的起始索引
+    const startIndex = seed % animations.length
+    
+    // 按顺序获取两个动画（如果到末尾则从头开始）
+    const recommendations = []
+    for (let i = 0; i < 2; i++) {
+      const index = (startIndex + i) % animations.length
+      const anim = animations[index]
+      recommendations.push({
+        id: anim.id,
+        title: anim.title,
+        description: anim.description,
+        coverUrl: anim.thumbnail_url || '/default-animation.jpg',
+        duration: Math.ceil(anim.duration / 60),
+        category: '动画'
+      })
+    }
+    
+    return recommendations
+  } catch (error) {
+    console.error('获取每日推荐失败:', error)
+    // 返回默认推荐
+    return [
+      {
+        id: 1,
+        title: '波波精灵和阿阿精灵',
+        description: '学习声母b和韵母a的发音',
+        coverUrl: '/pinyin-ba.jpg',
+        duration: 5,
+        category: '拼音'
+      }
+    ]
+  }
+}
+
 // 加载数据
 const loadData = async () => {
   try {
@@ -288,30 +387,23 @@ const loadData = async () => {
         // 获取孩子列表
         const children = await userService.getChildren(parentInfo.id)
         if (children && children.length > 0) {
-          currentChild.value = children[0]
+          // 如果没有当前选择的孩子，默认选择第一个
+          if (!currentChild.value) {
+            currentChild.value = children[0]
+            store.setCurrentChild(children[0])
+          }
           
-          // 获取今日推荐动画
-          const animations = await contentService.getAnimations({ 
-            ageGroup: 'preschool', 
-            difficulty: 'easy' 
-          })
-          dailyRecommendations.value = animations.slice(0, 2).map(anim => ({
-            id: anim.id,
-            title: anim.title,
-            description: anim.description,
-            coverUrl: anim.thumbnail_url || '/default-animation.jpg',
-            duration: Math.ceil(anim.duration / 60),
-            category: '动画'
-          }))
+          // 获取今日推荐动画（按顺序显示，不因观看而消失）
+          dailyRecommendations.value = await getDailyRecommendations(currentChild.value)
           
-          // 获取学习统计
-          const stats = await extendedLearningService.getDashboardStats(user.id)
+          // 获取当前孩子的学习统计
+          const stats = await getChildLearningStats(currentChild.value.id)
           weeklyProgress.value = Math.min(100, Math.round((stats.total_watch_time / 3600) * 10))
           totalDays.value = stats.current_streak
           learnedPinyin.value = Math.round(stats.completed_animations * 0.3)
           learnedCharacters.value = Math.round(stats.completed_animations * 0.4)
           
-          // 获取成就数据
+          // 获取当前孩子的成就数据
           const achievements = await extendedContentService.getChildAchievements(currentChild.value.id)
           totalAchievements.value = achievements.length
           newAchievements.value = achievements.filter(a => 
@@ -338,9 +430,105 @@ const loadData = async () => {
   }
 }
 
+// 获取孩子的学习统计
+const getChildLearningStats = async (childId) => {
+  try {
+    // 获取观看历史统计
+    const watchHistory = await learningService.getLearningStats(childId, 'week')
+    const completedAnimations = watchHistory.filter(item => item.completed).length
+    const totalWatchTime = watchHistory.reduce((sum, item) => sum + (item.watch_duration || 0), 0)
+    
+    // 计算连续学习天数
+    const currentStreak = await calculateCurrentStreak(childId)
+    
+    return {
+      total_watch_time: totalWatchTime,
+      completed_animations: completedAnimations,
+      current_streak: currentStreak
+    }
+  } catch (error) {
+    console.error('获取孩子学习统计失败:', error)
+    return {
+      total_watch_time: 1800,
+      completed_animations: 3,
+      current_streak: 5
+    }
+  }
+}
+
+// 计算连续学习天数
+const calculateCurrentStreak = async (childId) => {
+  try {
+    const today = new Date()
+    const oneDay = 24 * 60 * 60 * 1000
+    let streak = 0
+    
+    // 获取最近的学习记录
+    const learningStats = await learningService.getLearningStats(childId, 'month')
+    
+    // 按日期分组
+    const dates = [...new Set(learningStats.map(item => 
+      new Date(item.watched_at || item.created_at).toDateString()
+    ))].sort((a, b) => new Date(b) - new Date(a))
+    
+    // 计算连续天数
+    for (let i = 0; i < dates.length; i++) {
+      const currentDate = new Date(dates[i])
+      const prevDate = i > 0 ? new Date(dates[i - 1]) : null
+      
+      if (i === 0) {
+        // 检查今天是否有学习记录
+        if (currentDate.toDateString() === today.toDateString()) {
+          streak++
+        }
+      } else {
+        // 检查是否连续
+        const diffDays = Math.round(Math.abs((currentDate - prevDate) / oneDay))
+        if (diffDays === 1) {
+          streak++
+        } else {
+          break
+        }
+      }
+    }
+    
+    return streak
+  } catch (error) {
+    console.error('计算连续学习天数失败:', error)
+    return 5 // 默认值
+  }
+}
+
+// 根据年龄获取年龄组
+const getAgeGroup = (age) => {
+  if (age <= 3) return 'toddler'
+  if (age <= 6) return 'preschool'
+  if (age <= 9) return 'elementary'
+  return 'advanced'
+}
+
+// 根据学习水平获取难度级别
+const getDifficultyLevel = (level) => {
+  const levelMap = {
+    'beginner': 'easy',
+    'intermediate': 'medium',
+    'advanced': 'hard'
+  }
+  return levelMap[level] || 'easy'
+}
+
 // 组件挂载时初始化
-onMounted(() => {
-  loadData()
+onMounted(async () => {
+  // 确保存储中的当前孩子是最新的
+  if (store.currentChild) {
+    currentChild.value = store.currentChild
+  } else if (store.children.length > 0) {
+    // 如果没有当前选择的孩子，默认选择第一个
+    currentChild.value = store.children[0]
+    store.setCurrentChild(store.children[0])
+  }
+  
+  await loadData()
 })
 </script>
 

@@ -205,13 +205,28 @@ export const useMainStore = defineStore('main', () => {
   
   const updateChild = async (childId, childData) => {
     try {
-      const updatedChild = await userService.updateChild(childId, childData)
+      const result = await userService.updateChild(childId, childData)
+      
+      if (result.error) {
+        console.error('更新孩子失败:', result.error)
+        error.value = result.error.message
+        throw result.error
+      }
+      
+      if (!result.data) {
+        const err = new Error('更新孩子失败: 服务器返回空数据')
+        error.value = err.message
+        throw err
+      }
+      
       const index = children.value.findIndex(child => child.id === childId)
       if (index !== -1) {
-        children.value[index] = updatedChild
+        children.value[index] = result.data
       }
-      return updatedChild
+      
+      return result.data
     } catch (err) {
+      console.error('更新孩子失败:', err)
       error.value = err.message
       throw err
     }

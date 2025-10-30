@@ -99,6 +99,15 @@ const router = createRouter({
         role: 'child'
       }
     },
+    {
+      path: '/child/watch/:id',
+      name: 'child-watch',
+      component: () => import('../views/child/AnimationWatchView.vue'),
+      meta: {
+        requiresAuth: true,
+        role: 'child'
+      }
+    },
     
     // 管理员路由
     {

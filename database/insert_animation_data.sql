@@ -22,8 +22,8 @@ INSERT INTO animations (
     '550e8400-e29b-41d4-a716-446655440000', -- 固定ID便于测试
     '波波精灵和阿阿精灵',
     '学习声母b和韵母a的发音，通过有趣的动画故事帮助孩子掌握拼音基础',
-    'https://example.com/videos/pinyin-ba.mp4', -- 示例视频URL
-    '/thumbnails/pinyin-ba.jpg', -- 缩略图路径
+    '/videos/pinyin-ba.mp4', -- 本地视频文件
+    '/pinyin-ba.jpg', -- 缩略图路径
     300, -- 5分钟
     (SELECT id FROM categories WHERE name = '拼音学习' LIMIT 1), -- 关联拼音学习分类
     'preschool', -- 学龄前
@@ -57,8 +57,8 @@ INSERT INTO animations (
     '550e8400-e29b-41d4-a716-446655440001',
     '汉字小故事：日、月、水',
     '通过生动的故事学习汉字"日"、"月"、"水"的写法和含义',
-    'https://example.com/videos/characters-riyueshui.mp4',
-    '/thumbnails/characters-riyueshui.jpg',
+    '/videos/hanzi-ren.mp4',
+    '/hanzi-ren.jpg',
     420, -- 7分钟
     (SELECT id FROM categories WHERE name = '汉字启蒙' LIMIT 1),
     'kindergarten', -- 幼儿园

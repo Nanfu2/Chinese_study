@@ -237,14 +237,18 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { apiService } from '../../services/api'
+import { useMainStore } from '../../store'
+import { auth, userService } from '../../services/supabase'
+import { extendedContentService, extendedLearningService } from '../../services/supabase_extended'
 
 const router = useRouter()
+const store = useMainStore()
 
 // 状态管理
 const activeTab = ref('全部')
 const achievementTabs = ['全部', '学习', '行为', '连续', '挑战']
 const isLoading = ref(true)
+const currentChild = ref(null)
 
 // 成就数据
 const achievements = ref([])
@@ -300,29 +304,33 @@ const loadData = async () => {
   try {
     isLoading.value = true
     
+    // 获取当前选择的孩子
+    currentChild.value = store.currentChild
+    if (!currentChild.value && store.children.length > 0) {
+      currentChild.value = store.children[0]
+    }
+    
+    if (!currentChild.value) {
+      throw new Error('没有找到当前选择的孩子')
+    }
+    
     // 获取当前用户信息
-    const user = await apiService.getCurrentUser()
+    const user = await auth.getCurrentUser()
     if (user) {
       // 获取家长信息
-      const parentInfo = await apiService.getParentInfo(user.id)
+      const parentInfo = await userService.getParentInfo(user.id)
       if (parentInfo) {
-        // 获取孩子列表
-        const children = await apiService.getChildren(parentInfo.id)
-        if (children && children.length > 0) {
-          const currentChild = children[0]
-          
-          // 获取所有成就
-          const allAchievements = await apiService.getAchievements()
-          achievements.value = allAchievements
-          
-          // 获取孩子的成就记录
-          const childAchievementsData = await apiService.getChildAchievements(currentChild.id)
-          childAchievements.value = childAchievementsData
-          
-          // 获取学习统计来计算连续学习天数
-          const stats = await apiService.getDashboardStats(user.id)
-          streakDays.value = stats.current_streak || 0
-        }
+        // 获取所有成就
+        const allAchievements = await extendedContentService.getAchievements()
+        achievements.value = allAchievements
+        
+        // 获取当前孩子的成就记录
+        const childAchievementsData = await extendedContentService.getChildAchievements(currentChild.value.id)
+        childAchievements.value = childAchievementsData
+        
+        // 获取当前孩子的学习统计来计算连续学习天数
+        const stats = await extendedLearningService.getDashboardStats(currentChild.value.id)
+        streakDays.value = stats.current_streak || 0
       }
     }
   } catch (error) {

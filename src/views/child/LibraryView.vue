@@ -157,10 +157,12 @@
 <script setup>
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
-import { contentService } from '../../services/supabase'
+import { useMainStore } from '../../store'
+import { contentService, learningService } from '../../services/supabase'
 import { extendedContentService } from '../../services/supabase_extended'
 
 const router = useRouter()
+const store = useMainStore()
 
 // 状态管理
 const searchQuery = ref('')
@@ -169,6 +171,7 @@ const categories = ref(['全部'])
 const animations = ref([])
 const isLoading = ref(true)
 const debounceTimer = ref(null)
+const currentChild = ref(null)
 
 // 防抖搜索
 const debouncedSearchQuery = ref('')
@@ -238,6 +241,12 @@ const loadData = async () => {
   try {
     isLoading.value = true
     
+    // 获取当前选择的孩子
+    currentChild.value = store.currentChild
+    if (!currentChild.value && store.children.length > 0) {
+      currentChild.value = store.children[0]
+    }
+    
     // 并行加载分类和动画数据
     const [categoryData, animationData] = await Promise.all([
       extendedContentService.getCategories(),
@@ -247,18 +256,33 @@ const loadData = async () => {
     // 处理分类数据
     categories.value = ['全部', ...categoryData.map(cat => cat.name)]
     
+    // 获取当前孩子的观看历史
+    let watchHistory = []
+    if (currentChild.value) {
+      try {
+        watchHistory = await learningService.getLearningStats(currentChild.value.id, 'all')
+      } catch (error) {
+        console.error('获取观看历史失败:', error)
+      }
+    }
+    
     // 处理动画数据
-    animations.value = animationData.map(anim => ({
-      id: anim.id,
-      title: anim.title,
-      description: anim.description,
-      coverUrl: anim.thumbnail_url || '/default-animation.jpg',
-      duration: Math.ceil(anim.duration / 60),
-      category: categoryData.find(cat => cat.id === anim.category_id)?.name || '其他',
-      isNew: new Date(anim.created_at).getTime() > Date.now() - 7 * 24 * 60 * 60 * 1000,
-      isCompleted: false, // 需要根据观看历史计算
-      isFavorite: false // 需要根据用户偏好计算
-    }))
+    animations.value = animationData.map(anim => {
+      const childWatchRecord = watchHistory.find(record => record.animation_id === anim.id)
+      const isCompleted = childWatchRecord ? childWatchRecord.completed : false
+      
+      return {
+        id: anim.id,
+        title: anim.title,
+        description: anim.description,
+        coverUrl: anim.thumbnail_url || '/default-animation.jpg',
+        duration: Math.ceil(anim.duration / 60),
+        category: categoryData.find(cat => cat.id === anim.category_id)?.name || '其他',
+        isNew: new Date(anim.created_at).getTime() > Date.now() - 7 * 24 * 60 * 60 * 1000,
+        isCompleted: isCompleted,
+        isFavorite: false // 需要根据用户偏好计算
+      }
+    })
     
   } catch (error) {
     console.error('加载动画库数据失败:', error)
