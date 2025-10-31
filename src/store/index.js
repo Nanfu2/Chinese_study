@@ -207,6 +207,13 @@ export const useMainStore = defineStore('main', () => {
     try {
       const result = await userService.updateChild(childId, childData)
       
+      // 检查result是否为null或undefined
+      if (!result) {
+        const err = new Error('更新孩子失败: 服务器未返回有效响应')
+        error.value = err.message
+        throw err
+      }
+      
       if (result.error) {
         console.error('更新孩子失败:', result.error)
         error.value = result.error.message

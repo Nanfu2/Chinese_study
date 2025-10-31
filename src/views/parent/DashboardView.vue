@@ -1030,7 +1030,20 @@ const formatDateTime = (dateTimeString) => {
 
 // 组件挂载时初始化
 onMounted(async () => {
-  await loadChildrenData()
+  // 立即显示加载状态
+  isLoading.value = true
+  
+  try {
+    // 并行加载数据，减少等待时间
+    await Promise.all([
+      loadChildrenData(),
+      // 可以添加其他并行加载的数据
+    ])
+  } catch (error) {
+    console.error('页面初始化失败:', error)
+  } finally {
+    isLoading.value = false
+  }
   
   // 添加点击外部关闭下拉菜单的事件监听
   document.addEventListener('click', handleClickOutside)

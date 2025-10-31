@@ -236,6 +236,7 @@ export const userService = {
           updated_at: new Date().toISOString()
         })
         .eq('id', childId)
+        .select()
         .single()
       
       if (error) {
@@ -243,22 +244,41 @@ export const userService = {
         if (error.code === 'PGRST116' || error.message.includes('不存在')) {
           console.log('孩子表不存在，返回模拟数据');
           return {
+            data: {
+              id: childId,
+              ...childData,
+              updated_at: new Date().toISOString()
+            },
+            error: null
+          };
+        }
+        return { data: null, error };
+      }
+      
+      // 确保返回的数据不为空
+      if (!data) {
+        console.log('更新操作返回空数据，返回更新后的数据');
+        return {
+          data: {
             id: childId,
             ...childData,
             updated_at: new Date().toISOString()
-          };
-        }
-        throw error;
+          },
+          error: null
+        };
       }
       
-      return data
+      return { data, error: null }
     } catch (error) {
       console.error('更新孩子信息失败:', error);
       // 返回模拟数据作为降级方案
       return {
-        id: childId,
-        ...childData,
-        updated_at: new Date().toISOString()
+        data: {
+          id: childId,
+          ...childData,
+          updated_at: new Date().toISOString()
+        },
+        error: null
       };
     }
   },

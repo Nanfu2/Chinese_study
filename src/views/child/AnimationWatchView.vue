@@ -312,9 +312,70 @@ const recordWatchComplete = async (duration) => {
       interaction_type: 'completion',
       interaction_data: { duration: Math.round(duration / 1000) }
     })
+    
+    // 检查并解锁拼音小能手成就
+    await checkAndUnlockPinyinAchievement()
   } catch (error) {
     console.error('记录观看完成失败:', error)
   }
+}
+
+// 检查并解锁拼音小能手成就
+const checkAndUnlockPinyinAchievement = async () => {
+  if (!currentChild.value || !animation.value) return
+  
+  try {
+    // 导入扩展服务
+    const { extendedContentService } = await import('../../services/supabase_extended')
+    
+    // 检查并解锁拼音小能手成就
+    const result = await extendedContentService.checkAndUnlockPinyinAchievement(currentChild.value.id)
+    
+    if (result.success) {
+      // 成就解锁成功，显示提示
+      showAchievementUnlocked('拼音小能手', '恭喜你完成了拼音学习！')
+    } else if (result.progress) {
+      console.log('拼音学习进度:', result.progress, '%')
+    }
+  } catch (error) {
+    console.error('检查拼音成就失败:', error)
+  }
+}
+
+// 显示成就解锁提示
+const showAchievementUnlocked = (title, message) => {
+  // 创建成就解锁提示元素
+  const achievementElement = document.createElement('div')
+  achievementElement.className = 'fixed top-4 right-4 z-50 bg-gradient-to-r from-yellow-400 to-orange-500 text-white p-4 rounded-lg shadow-lg max-w-sm animate-bounce'
+  achievementElement.innerHTML = `
+    <div class="flex items-center space-x-3">
+      <div class="bg-white rounded-full p-2">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-yellow-500" fill="currentColor" viewBox="0 0 24 24">
+          <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>
+        </svg>
+      </div>
+      <div>
+        <h4 class="font-bold text-lg">🎉 成就解锁！</h4>
+        <p class="text-sm"><strong>${title}</strong> - ${message}</p>
+      </div>
+    </div>
+  `
+  
+  // 添加到页面
+  document.body.appendChild(achievementElement)
+  
+  // 触发全局事件，通知成就页面刷新
+  const event = new CustomEvent('achievementUnlocked', {
+    detail: { title, message }
+  })
+  window.dispatchEvent(event)
+  
+  // 3秒后自动移除
+  setTimeout(() => {
+    if (achievementElement.parentNode) {
+      achievementElement.parentNode.removeChild(achievementElement)
+    }
+  }, 3000)
 }
 
 const recordLike = async () => {

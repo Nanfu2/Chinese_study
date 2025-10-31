@@ -235,10 +235,10 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useMainStore } from '../../store'
-import { auth, userService } from '../../services/supabase'
+import { auth, userService, learningService } from '../../services/supabase'
 import { extendedContentService, extendedLearningService } from '../../services/supabase_extended'
 
 const router = useRouter()
@@ -268,11 +268,112 @@ const streakDays = ref(0)
 const nextStreakReward = 21
 const streakProgress = computed(() => (streakDays.value / nextStreakReward) * 100)
 
+// 状态管理 - 添加观看历史数据
+const watchHistory = ref([])
+
+// 自动解锁成就的函数
+const autoUnlockAchievement = async (achievement, progress) => {
+  if (progress >= 100 && currentChild.value) {
+    try {
+      console.log('检测到成就进度达到100%，尝试自动解锁:', achievement.name)
+      
+      // 检查是否已经解锁
+      const existingAchievement = childAchievements.value.find(ca => ca.achievement_id === achievement.id)
+      if (!existingAchievement) {
+        // 调用解锁成就服务
+        const result = await extendedContentService.unlockAchievement(currentChild.value.id, achievement.id)
+        
+        if (result.success) {
+          console.log('成就自动解锁成功:', achievement.name)
+          
+          // 刷新成就数据
+          await refreshAchievements()
+          
+          // 发送全局事件通知其他组件
+          window.dispatchEvent(new CustomEvent('achievementUnlocked', {
+            detail: {
+              achievementId: achievement.id,
+              achievementName: achievement.name,
+              childId: currentChild.value.id
+            }
+          }))
+        }
+      }
+    } catch (error) {
+      console.error('自动解锁成就失败:', error)
+    }
+  }
+}
+
+// 监听数据变化，检查是否需要自动解锁成就
+watch([achievements, childAchievements, watchHistory, currentChild], () => {
+  if (achievements.value.length > 0 && currentChild.value) {
+    achievements.value.forEach(achievement => {
+      const childAchievement = childAchievements.value.find(ca => ca.achievement_id === achievement.id)
+      const isCompleted = !!childAchievement
+      
+      if (!isCompleted) {
+        let progress = 0
+        
+        // 根据成就类型计算实际进度
+        switch (achievement.condition_type) {
+          case 'watch_count':
+            const totalWatched = watchHistory.value.length
+            progress = Math.min((totalWatched / achievement.condition_value) * 100, 100)
+            break
+          case 'completion_rate':
+            const completedAnimations = watchHistory.value.filter(record => record.completed).length
+            const totalAnimations = watchHistory.value.length
+            progress = totalAnimations > 0 ? Math.min((completedAnimations / totalAnimations) * 100, 100) : 0
+            break
+          case 'character_count':
+            progress = Math.min(30, 100) // 临时值，需要实际计算
+            break
+          default:
+            progress = 0
+        }
+        
+        // 检查是否需要自动解锁成就
+        if (progress >= 100) {
+          autoUnlockAchievement(achievement, progress)
+        }
+      }
+    })
+  }
+}, { deep: true, immediate: true })
+
 // 计算属性：过滤后的成就列表
 const filteredAchievements = computed(() => {
   const allAchievements = achievements.value.map(achievement => {
     const childAchievement = childAchievements.value.find(ca => ca.achievement_id === achievement.id)
     const isCompleted = !!childAchievement
+    
+    // 根据成就类型计算实际进度
+    let progress = 0
+    if (!isCompleted) {
+      // 根据成就类型计算实际进度
+      switch (achievement.condition_type) {
+        case 'watch_count':
+          // 获取孩子的观看总数
+          const totalWatched = watchHistory.value.length
+          progress = Math.min((totalWatched / achievement.condition_value) * 100, 100)
+          break
+        case 'completion_rate':
+          // 获取完成率 - 计算已完成的动画数量
+          const completedAnimations = watchHistory.value.filter(record => record.completed).length
+          const totalAnimations = watchHistory.value.length
+          progress = totalAnimations > 0 ? Math.min((completedAnimations / totalAnimations) * 100, 100) : 0
+          break
+        case 'character_count':
+          // 获取已学汉字数量（这里需要实际的汉字学习数据）
+          progress = Math.min(30, 100) // 临时值，需要实际计算
+          break
+        default:
+          progress = 0
+      }
+    } else {
+      progress = 100
+    }
     
     // 根据成就类型映射到前端分类
     let type = '学习'
@@ -289,7 +390,7 @@ const filteredAchievements = computed(() => {
       isCompleted: isCompleted,
       isNew: childAchievement && new Date(childAchievement.unlocked_at).getTime() > Date.now() - 7 * 24 * 60 * 60 * 1000,
       type: type,
-      progress: isCompleted ? 100 : 0
+      progress: Math.round(progress)
     }
   })
   
@@ -298,6 +399,26 @@ const filteredAchievements = computed(() => {
   }
   return allAchievements.filter(a => a.type === activeTab.value)
 })
+
+// 刷新成就数据
+const refreshAchievements = async () => {
+  try {
+    isLoading.value = true
+    
+    // 重新获取当前孩子的成就记录和观看历史
+    if (currentChild.value) {
+      const childAchievementsData = await extendedContentService.getChildAchievements(currentChild.value.id)
+      childAchievements.value = childAchievementsData
+      
+      const watchHistoryData = await learningService.getLearningStats(currentChild.value.id, 'all')
+      watchHistory.value = watchHistoryData
+    }
+  } catch (error) {
+    console.error('刷新成就数据失败:', error)
+  } finally {
+    isLoading.value = false
+  }
+}
 
 // 加载数据
 const loadData = async () => {
@@ -327,6 +448,10 @@ const loadData = async () => {
         // 获取当前孩子的成就记录
         const childAchievementsData = await extendedContentService.getChildAchievements(currentChild.value.id)
         childAchievements.value = childAchievementsData
+        
+        // 获取当前孩子的观看历史
+        const watchHistoryData = await learningService.getLearningStats(currentChild.value.id, 'all')
+        watchHistory.value = watchHistoryData
         
         // 获取当前孩子的学习统计来计算连续学习天数
         const stats = await extendedLearningService.getDashboardStats(currentChild.value.id)
@@ -380,6 +505,10 @@ const loadData = async () => {
     ]
     
     childAchievements.value = []
+    // 为模拟数据添加一些观看历史记录，让成就显示进度
+    watchHistory.value = [
+      { id: '1', child_id: '1', animation_id: '1', watch_duration: 300, completed: true, created_at: new Date().toISOString() }
+    ]
     streakDays.value = 5
   } finally {
     isLoading.value = false
@@ -410,7 +539,22 @@ const goToParentDashboard = () => {
 // 组件挂载时加载数据
 onMounted(() => {
   loadData()
+  
+  // 监听成就解锁事件
+  window.addEventListener('achievementUnlocked', handleAchievementUnlocked)
 })
+
+// 组件卸载时清理事件监听器
+onUnmounted(() => {
+  window.removeEventListener('achievementUnlocked', handleAchievementUnlocked)
+})
+
+// 处理成就解锁事件
+const handleAchievementUnlocked = (event) => {
+  console.log('收到成就解锁事件:', event.detail)
+  // 刷新成就数据
+  refreshAchievements()
+}
 </script>
 
 <style scoped>
