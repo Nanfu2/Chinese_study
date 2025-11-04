@@ -81,27 +81,34 @@ const error = ref('')
 const isLoading = ref(false)
 
 const handleLogin = async () => {
-  error.value = ''
-  isLoading.value = true
-  
-  try {
-    await store.login(email.value, password.value)
+    error.value = ''
+    isLoading.value = true
     
-    // 登录后根据用户角色跳转到相应界面
-    if (store.isAdmin) {
-      router.push('/admin')
-    } else if (store.isParent) {
-      router.push('/parent')
-    } else {
-      // 默认为儿童角色
-      router.push('/child')
+    try {
+      await store.login(email.value, password.value)
+      
+      // 打印用户信息用于调试
+      console.log('登录成功，用户信息:', store.user)
+      console.log('是否为管理员:', store.isAdmin)
+      
+      // 登录后根据用户角色跳转到相应界面
+      if (store.isAdmin) {
+        console.log('管理员登录，跳转到后台管理界面')
+        router.push('/admin')
+      } else if (store.isParent) {
+        console.log('家长登录，跳转到家长仪表盘')
+        router.push('/parent/dashboard')
+      } else {
+        console.log('未知角色，默认为儿童角色')
+        router.push('/child')
+      }
+    } catch (err) {
+      error.value = err.message || '登录失败，请检查邮箱和密码'
+      console.error('登录错误:', err)
+    } finally {
+      isLoading.value = false
     }
-  } catch (err) {
-    error.value = err.message || '登录失败，请检查邮箱和密码'
-  } finally {
-    isLoading.value = false
   }
-}
 </script>
 
 <style scoped>

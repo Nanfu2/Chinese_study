@@ -26,10 +26,22 @@ export const useMainStore = defineStore('main', () => {
     isAuthenticated.value = !!userData
     
     console.log('设置用户:', userData)
+    console.log('用户角色:', userData?.user_metadata?.role)
+    
+    // 根据用户角色执行不同的初始化逻辑
+    if (!userData) {
+      return
+    }
+    
+    // 管理员用户不执行家长相关的初始化
+    if (userData.user_metadata?.role === 'admin') {
+      console.log('管理员用户登录，跳过家长初始化流程')
+      return
+    }
     
     // 如果是家长，确保家长记录存在并获取孩子列表
-    if (userData && (userData.user_metadata?.role === 'parent' || !userData.user_metadata?.role)) {
-      // 默认所有认证用户都是家长
+    if (userData.user_metadata?.role === 'parent' || !userData.user_metadata?.role) {
+      // 默认所有非管理员认证用户都是家长
       try {
         console.log('开始检查家长记录，用户ID:', userData.id)
         

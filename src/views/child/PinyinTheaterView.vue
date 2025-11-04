@@ -449,6 +449,261 @@ const pinyinData = [
       { text: 'ai', example: '爱心 ài xīn' },
       { text: 'ei', example: '飞机 fēi jī' }
     ]
+  },
+  // 复韵母
+  {
+    pinyin: 'ai',
+    character: {
+      name: '爱爱猫',
+      color: 'from-red-300 to-pink-400'
+    },
+    dialogue: '我是爱爱猫！爱爸爸妈妈：ài ài ài！就像爱心一样温暖！',
+    options: [
+      { text: 'ai', example: '爱心 ài xīn' },
+      { text: 'ei', example: '飞机 fēi jī' },
+      { text: 'ui', example: '围巾 wéi jīn' },
+      { text: 'ao', example: '棉袄 mián ǎo' }
+    ]
+  },
+  {
+    pinyin: 'ei',
+    character: {
+      name: '飞飞象',
+      color: 'from-gray-300 to-blue-400'
+    },
+    dialogue: '我是飞飞象！用力喷气：ēi ēi ēi！就像飞机起飞一样！',
+    options: [
+      { text: 'ai', example: '爱心 ài xīn' },
+      { text: 'ei', example: '飞机 fēi jī' },
+      { text: 'ui', example: '围巾 wéi jīn' },
+      { text: 'ao', example: '棉袄 mián ǎo' }
+    ]
+  },
+  {
+    pinyin: 'ui',
+    character: {
+      name: '围围熊',
+      color: 'from-brown-300 to-yellow-400'
+    },
+    dialogue: '我是围围熊！戴着围巾：wéi wéi wéi！冬天很暖和！',
+    options: [
+      { text: 'ai', example: '爱心 ài xīn' },
+      { text: 'ei', example: '飞机 fēi jī' },
+      { text: 'ui', example: '围巾 wéi jīn' },
+      { text: 'ao', example: '棉袄 mián ǎo' }
+    ]
+  },
+  {
+    pinyin: 'ao',
+    character: {
+      name: '袄袄狗',
+      color: 'from-yellow-300 to-orange-400'
+    },
+    dialogue: '我是袄袄狗！穿着棉袄：ǎo ǎo ǎo！冬天不怕冷！',
+    options: [
+      { text: 'ao', example: '棉袄 mián ǎo' },
+      { text: 'ou', example: '海鸥 hǎi ōu' },
+      { text: 'iu', example: '优秀 yōu xiù' },
+      { text: 'ie', example: '蝴蝶 hú dié' }
+    ]
+  },
+  {
+    pinyin: 'ou',
+    character: {
+      name: '欧欧鸥',
+      color: 'from-blue-300 to-cyan-400'
+    },
+    dialogue: '我是欧欧鸥！海鸥飞翔：ōu ōu ōu！在大海上自由自在！',
+    options: [
+      { text: 'ao', example: '棉袄 mián ǎo' },
+      { text: 'ou', example: '海鸥 hǎi ōu' },
+      { text: 'iu', example: '优秀 yōu xiù' },
+      { text: 'ie', example: '蝴蝶 hú dié' }
+    ]
+  },
+  {
+    pinyin: 'iu',
+    character: {
+      name: '优优鹿',
+      color: 'from-green-300 to-blue-400'
+    },
+    dialogue: '我是优优鹿！非常优秀：yōu yōu yōu！学习很努力！',
+    options: [
+      { text: 'ao', example: '棉袄 mián ǎo' },
+      { text: 'ou', example: '海鸥 hǎi ōu' },
+      { text: 'iu', example: '优秀 yōu xiù' },
+      { text: 'ie', example: '蝴蝶 hú dié' }
+    ]
+  },
+  {
+    pinyin: 'ie',
+    character: {
+      name: '蝶蝶虫',
+      color: 'from-purple-300 to-pink-400'
+    },
+    dialogue: '我是蝶蝶虫！变成蝴蝶：dié dié dié！在花丛中飞舞！',
+    options: [
+      { text: 'ie', example: '蝴蝶 hú dié' },
+      { text: 'üe', example: '月亮 yuè liang' },
+      { text: 'er', example: '耳朵 ěr duo' },
+      { text: 'an', example: '安全 ān quán' }
+    ]
+  },
+  {
+    pinyin: 'üe',
+    character: {
+      name: '月月兔',
+      color: 'from-indigo-300 to-purple-400'
+    },
+    dialogue: '我是月月兔！喜欢月亮：yuè yuè yuè！晚上出来玩！',
+    options: [
+      { text: 'ie', example: '蝴蝶 hú dié' },
+      { text: 'üe', example: '月亮 yuè liang' },
+      { text: 'er', example: '耳朵 ěr duo' },
+      { text: 'an', example: '安全 ān quán' }
+    ]
+  },
+  {
+    pinyin: 'er',
+    character: {
+      name: '耳耳猴',
+      color: 'from-brown-300 to-orange-400'
+    },
+    dialogue: '我是耳耳猴！耳朵长长：ěr ěr ěr！能听到很远的声音！',
+    options: [
+      { text: 'ie', example: '蝴蝶 hú dié' },
+      { text: 'üe', example: '月亮 yuè liang' },
+      { text: 'er', example: '耳朵 ěr duo' },
+      { text: 'an', example: '安全 ān quán' }
+    ]
+  },
+  // 前鼻韵母
+  {
+    pinyin: 'an',
+    character: {
+      name: '安安鸭',
+      color: 'from-yellow-300 to-green-400'
+    },
+    dialogue: '我是安安鸭！安全第一：ān ān ān！要保护好自己！',
+    options: [
+      { text: 'an', example: '安全 ān quán' },
+      { text: 'en', example: '恩情 ēn qíng' },
+      { text: 'in', example: '音乐 yīn yuè' },
+      { text: 'un', example: '云朵 yún duǒ' }
+    ]
+  },
+  {
+    pinyin: 'en',
+    character: {
+      name: '恩恩牛',
+      color: 'from-red-300 to-brown-400'
+    },
+    dialogue: '我是恩恩牛！懂得感恩：ēn ēn ēn！感谢帮助过我的人！',
+    options: [
+      { text: 'an', example: '安全 ān quán' },
+      { text: 'en', example: '恩情 ēn qíng' },
+      { text: 'in', example: '音乐 yīn yuè' },
+      { text: 'un', example: '云朵 yún duǒ' }
+    ]
+  },
+  {
+    pinyin: 'in',
+    character: {
+      name: '音音鸟',
+      color: 'from-blue-300 to-violet-400'
+    },
+    dialogue: '我是音音鸟！歌声优美：yīn yīn yīn！就像音乐一样好听！',
+    options: [
+      { text: 'an', example: '安全 ān quán' },
+      { text: 'en', example: '恩情 ēn qíng' },
+      { text: 'in', example: '音乐 yīn yuè' },
+      { text: 'un', example: '云朵 yún duǒ' }
+    ]
+  },
+  {
+    pinyin: 'un',
+    character: {
+      name: '云云羊',
+      color: 'from-white to-gray-300'
+    },
+    dialogue: '我是云云羊！像云朵一样：yún yún yún！在天空中飘来飘去！',
+    options: [
+      { text: 'un', example: '云朵 yún duǒ' },
+      { text: 'ün', example: '运动 yùn dòng' },
+      { text: 'ang', example: '生气 shēng qì' },
+      { text: 'eng', example: '朋友 péng yǒu' }
+    ]
+  },
+  {
+    pinyin: 'ün',
+    character: {
+      name: '运运马',
+      color: 'from-orange-300 to-red-400'
+    },
+    dialogue: '我是运运马！喜欢运动：yùn yùn yùn！身体棒棒的！',
+    options: [
+      { text: 'un', example: '云朵 yún duǒ' },
+      { text: 'ün', example: '运动 yùn dòng' },
+      { text: 'ang', example: '生气 shēng qì' },
+      { text: 'eng', example: '朋友 péng yǒu' }
+    ]
+  },
+  // 后鼻韵母
+  {
+    pinyin: 'ang',
+    character: {
+      name: '昂昂虎',
+      color: 'from-yellow-300 to-red-400'
+    },
+    dialogue: '我是昂昂虎！斗志昂扬：áng áng áng！威风凛凛！',
+    options: [
+      { text: 'ang', example: '生气 shēng qì' },
+      { text: 'eng', example: '朋友 péng yǒu' },
+      { text: 'ing', example: '星星 xīng xing' },
+      { text: 'ong', example: '恐龙 kǒng lóng' }
+    ]
+  },
+  {
+    pinyin: 'eng',
+    character: {
+      name: '朋朋熊',
+      color: 'from-green-300 to-blue-400'
+    },
+    dialogue: '我是朋朋熊！喜欢交朋友：péng péng péng！朋友越多越快乐！',
+    options: [
+      { text: 'ang', example: '生气 shēng qì' },
+      { text: 'eng', example: '朋友 péng yǒu' },
+      { text: 'ing', example: '星星 xīng xing' },
+      { text: 'ong', example: '恐龙 kǒng lóng' }
+    ]
+  },
+  {
+    pinyin: 'ing',
+    character: {
+      name: '星星空',
+      color: 'from-indigo-300 to-purple-400'
+    },
+    dialogue: '我是星星空！满天星星：xīng xīng xīng！一闪一闪亮晶晶！',
+    options: [
+      { text: 'ang', example: '生气 shēng qì' },
+      { text: 'eng', example: '朋友 péng yǒu' },
+      { text: 'ing', example: '星星 xīng xing' },
+      { text: 'ong', example: '恐龙 kǒng lóng' }
+    ]
+  },
+  {
+    pinyin: 'ong',
+    character: {
+      name: '龙龙龙',
+      color: 'from-red-300 to-yellow-400'
+    },
+    dialogue: '我是龙龙龙！恐龙来了：lóng lóng lóng！是远古的大怪兽！',
+    options: [
+      { text: 'ang', example: '生气 shēng qì' },
+      { text: 'eng', example: '朋友 péng yǒu' },
+      { text: 'ing', example: '星星 xīng xing' },
+      { text: 'ong', example: '恐龙 kǒng lóng' }
+    ]
   }
 ]
 
@@ -553,6 +808,7 @@ const restartPractice = () => {
 
 const getCharacterAnimation = (pinyin) => {
   const animations = {
+    // 声母
     'b': 'animate-bounce',
     'p': 'animate-pulse',
     'm': 'animate-wiggle',
@@ -561,12 +817,34 @@ const getCharacterAnimation = (pinyin) => {
     't': 'animate-pulse',
     'n': 'animate-wiggle',
     'l': 'animate-float',
+    // 单韵母
     'a': 'animate-bounce',
     'o': 'animate-pulse',
     'e': 'animate-wiggle',
     'i': 'animate-float',
     'u': 'animate-bounce',
-    'ü': 'animate-pulse'
+    'ü': 'animate-pulse',
+    // 复韵母
+    'ai': 'animate-bounce',
+    'ei': 'animate-pulse',
+    'ui': 'animate-wiggle',
+    'ao': 'animate-float',
+    'ou': 'animate-bounce',
+    'iu': 'animate-pulse',
+    'ie': 'animate-wiggle',
+    'üe': 'animate-float',
+    'er': 'animate-bounce',
+    // 前鼻韵母
+    'an': 'animate-pulse',
+    'en': 'animate-wiggle',
+    'in': 'animate-float',
+    'un': 'animate-bounce',
+    'ün': 'animate-pulse',
+    // 后鼻韵母
+    'ang': 'animate-wiggle',
+    'eng': 'animate-float',
+    'ing': 'animate-bounce',
+    'ong': 'animate-pulse'
   }
   return animations[pinyin] || 'animate-bounce'
 }

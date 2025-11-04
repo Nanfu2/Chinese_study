@@ -152,22 +152,34 @@ const router = createRouter({
 
 // 路由守卫
 router.beforeEach(async (to, from, next) => {
+  // 记录当前路由信息用于调试
+  console.log('当前路由:', to.path)
+  console.log('需要认证:', to.matched.some(record => record.meta.requiresAuth))
+  console.log('需要角色:', to.meta.role)
+  
   // 检查是否需要认证
   if (to.matched.some(record => record.meta.requiresAuth)) {
     try {
       // 从Supabase获取当前用户信息
       const user = await auth.getCurrentUser()
+      console.log('当前用户:', user)
+      console.log('用户角色:', user?.user_metadata?.role)
       
-      // 简化判断逻辑，只要用户存在就允许访问
-      // 完全移除角色验证，确保家长端和儿童端之间可以自由切换
       if (user) {
         // 记录当前访问的角色类型
         if (to.meta.role) {
           localStorage.setItem('currentRole', to.meta.role)
         }
+        
+        // 额外的管理员路由日志
+        if (to.path.startsWith('/admin')) {
+          console.log('管理员路由访问，用户角色:', user?.user_metadata?.role)
+        }
+        
         next()
       } else {
         // 未认证，重定向到登录页面
+        console.log('用户未认证，重定向到登录页面')
         next({ name: 'login' })
       }
     } catch (error) {
