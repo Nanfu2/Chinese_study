@@ -105,6 +105,11 @@
         <div class="container mx-auto">
           <h2 class="text-xl font-bold mb-6">用户管理</h2>
           
+          <!-- 错误提示 -->
+          <div v-if="error" class="mb-4 p-3 bg-red-100 text-red-700 rounded">
+            {{ error }}
+          </div>
+          
           <!-- 筛选和搜索 -->
           <div class="bg-white rounded-lg shadow p-4 mb-6">
             <div class="flex flex-col md:flex-row gap-4">
@@ -147,7 +152,13 @@
           <!-- 用户列表 -->
           <div class="bg-white rounded-lg shadow overflow-hidden">
             <div class="overflow-x-auto">
-              <table class="min-w-full divide-y divide-gray-200">
+              <!-- 加载状态 -->
+              <div v-if="loading" class="text-center py-8">
+                <div class="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500"></div>
+                <p class="mt-2 text-gray-600">正在加载用户数据...</p>
+              </div>
+              
+              <table v-else class="min-w-full divide-y divide-gray-200">
                 <thead class="bg-gray-50">
                   <tr>
                     <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">用户ID</th>
@@ -176,11 +187,10 @@
                     <td class="px-6 py-4 whitespace-nowrap">
                       <span :class="[
                         'px-2 inline-flex text-xs leading-5 font-semibold rounded-full',
-                        user.role === 'admin' ? 'bg-blue-100 text-blue-800' :
-                        user.role === 'parent' ? 'bg-green-100 text-green-800' :
+                        user.role === '管理员' ? 'bg-blue-100 text-blue-800' :
                         'bg-gray-100 text-gray-800'
                       ]">
-                        {{ user.role === 'admin' ? '管理员' : user.role === 'parent' ? '家长' : '儿童' }}
+                        {{ user.role === '管理员' ? '管理员' : '用户' }}
                       </span>
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ user.registeredAt }}</td>
@@ -247,9 +257,10 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useMainStore } from '../../store'
+import { adminService } from '../../services/adminService'
 
 const router = useRouter()
 const store = useMainStore()
@@ -260,55 +271,32 @@ const searchQuery = ref('')
 const userRole = ref('all')
 const currentPage = ref(1)
 const pageSize = ref(10)
+const loading = ref(false)
+const error = ref(null)
 
-// 模拟用户数据
-const users = ref([
-  {
-    id: '1',
-    name: '管理员',
-    email: 'admin@example.com',
-    avatar: '/logo.svg',
-    role: 'admin',
-    registeredAt: '2023-01-01 10:00',
-    active: true
-  },
-  {
-    id: '2',
-    name: '张三',
-    email: 'zhangsan@example.com',
-    avatar: '/logo.svg',
-    role: 'parent',
-    registeredAt: '2023-02-15 14:30',
-    active: true
-  },
-  {
-    id: '3',
-    name: '李四',
-    email: 'lisi@example.com',
-    avatar: '/logo.svg',
-    role: 'parent',
-    registeredAt: '2023-03-20 09:15',
-    active: true
-  },
-  {
-    id: '4',
-    name: '王五',
-    email: 'wangwu@example.com',
-    avatar: '/logo.svg',
-    role: 'child',
-    registeredAt: '2023-04-05 16:45',
-    active: true
-  },
-  {
-    id: '5',
-    name: '赵六',
-    email: 'zhaoliu@example.com',
-    avatar: '/logo.svg',
-    role: 'child',
-    registeredAt: '2023-05-10 11:20',
-    active: false
+// 用户数据
+const users = ref([])
+const selectedUser = ref(null)
+const editingRole = ref('')
+
+// 加载用户数据
+const loadUsers = async () => {
+  loading.value = true
+  error.value = null
+  
+  try {
+    users.value = await adminService.getAllUsers()
+    currentPage.value = 1 // 重置到第一页
+  } catch (err) {
+    console.error('加载用户数据失败:', err)
+    error.value = '加载用户数据失败，请刷新页面重试'
+    
+    // 加载失败时显示模拟数据
+    users.value = adminService.getMockUsers()
+  } finally {
+    loading.value = false
   }
-])
+}
 
 // 筛选后的用户
 const filteredUsers = computed(() => {
@@ -358,18 +346,63 @@ const filterUsers = () => {
 
 const editUser = (user) => {
   console.log('编辑用户:', user)
-  // 实际应用中，这里可以打开编辑模态框或跳转到编辑页面
+  selectedUser.value = user
+  editingRole.value = user.role
+  
+  // 简单实现：直接使用prompt修改角色
+  if (confirm(`是否要修改用户 ${user.name} 的角色？`)) {
+    const newRole = prompt('请输入新角色 (admin/parent/child):', user.role)
+    if (newRole && ['admin', 'parent', 'child'].includes(newRole)) {
+      updateUserRole(user.id, newRole)
+    }
+  }
 }
 
-const toggleUserStatus = (user) => {
-  console.log('切换用户状态:', user)
-  // 实际应用中，这里可以调用API更新用户状态
-  user.active = !user.active
+const updateUserRole = async (userId, role) => {
+  try {
+    await adminService.updateUserRole(userId, role)
+    // 更新本地数据
+    const user = users.value.find(u => u.id === userId)
+    if (user) {
+      user.role = role
+    }
+    alert('用户角色更新成功！')
+  } catch (err) {
+    console.error('更新用户角色失败:', err)
+    alert('更新用户角色失败: ' + err.message)
+  }
 }
 
-const deleteUser = (user) => {
-  console.log('删除用户:', user)
-  // 实际应用中，这里可以调用API删除用户，并弹出确认对话框
+const toggleUserStatus = async (user) => {
+  try {
+    const newStatus = !user.active
+    await adminService.updateUserStatus(user.id, newStatus)
+    user.active = newStatus
+    alert(`用户已${newStatus ? '启用' : '禁用'}！`)
+  } catch (err) {
+    console.error('更新用户状态失败:', err)
+    alert('更新用户状态失败: ' + err.message)
+  }
+}
+
+const deleteUser = async (user) => {
+  // 防止删除管理员自己
+  if (user.email === store.user?.email) {
+    alert('不能删除当前登录的管理员账号！')
+    return
+  }
+  
+  if (confirm(`确定要删除用户 ${user.name} 吗？此操作不可恢复。`)) {
+    try {
+      await adminService.deleteUser(user.id)
+      // 从本地数据中移除
+      users.value = users.value.filter(u => u.id !== user.id)
+      alert('用户删除成功！')
+    } catch (err) {
+      console.error('删除用户失败:', err)
+      alert('删除用户失败: ' + err.message)
+    }
+  }
 }
 
 // 点击其他地方关闭下拉菜单
@@ -382,17 +415,20 @@ const handleClickOutside = (event) => {
   }
 }
 
-onMounted(() => {
+onMounted(async () => {
   document.addEventListener('click', handleClickOutside)
   
   // 验证用户是否为管理员
   if (!store.isAdmin) {
     router.push('/login')
+    return
   }
+  
+  // 加载用户数据
+  await loadUsers()
 })
 
 // 组件卸载时移除事件监听器
-import { onUnmounted } from 'vue'
 onUnmounted(() => {
   document.removeEventListener('click', handleClickOutside)
 })

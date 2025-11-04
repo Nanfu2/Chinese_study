@@ -131,6 +131,9 @@ defineExpose({
 </script>
 
 <style>
+@import './assets/admin-style.css';
+/* 引入管理员样式 */
+
 /* 全局动画 */
 @keyframes fadeIn {
   from {
@@ -150,9 +153,6 @@ defineExpose({
 .fade-leave-to {
   opacity: 0;
 }
-
-/* 引入管理员样式 */
-@import './assets/admin-style.css';
 
 /* 确保管理员样式正确应用 */
 body.admin-ui {

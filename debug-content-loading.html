@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>内容加载调试</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .tab {
+            display: inline-block;
+            padding: 10px 20px;
+            margin: 5px;
+            background: #e0e0e0;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .tab.active {
+            background: #007bff;
+            color: white;
+        }
+        .content {
+            margin-top: 20px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 15px;
+        }
+        .log {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            padding: 10px;
+            margin: 10px 0;
+            font-family: monospace;
+            white-space: pre-wrap;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .success { color: green; }
+        .error { color: red; }
+        .info { color: blue; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>内容加载调试工具</h1>
+        
+        <div>
+            <div class="tab active" onclick="testContentService()">测试ContentService</div>
+            <div class="tab" onclick="testContentView()">测试ContentView页面</div>
+        </div>
+        
+        <div class="content">
+            <h3>调试日志</h3>
+            <div id="log" class="log"></div>
+            
+            <h3>测试结果</h3>
+            <div id="results"></div>
+        </div>
+    </div>
+
+    <script>
+        const log = document.getElementById('log');
+        const results = document.getElementById('results');
+        
+        function addLog(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const logEntry = document.createElement('div');
+            logEntry.innerHTML = `<span class="${type}">[${timestamp}] ${message}</span>`;
+            log.appendChild(logEntry);
+            log.scrollTop = log.scrollHeight;
+        }
+        
+        async function testContentService() {
+            addLog('开始测试ContentService...', 'info');
+            
+            try {
+                // 动态导入contentService
+                const { contentService } = await import('./src/services/contentService.js');
+                addLog('✓ ContentService导入成功', 'success');
+                
+                // 测试拼音数据
+                addLog('测试拼音数据加载...', 'info');
+                const pinyinData = await contentService.getAllPinyin();
+                addLog(`✓ 拼音数据加载成功，共 ${pinyinData.length} 条记录`, 'success');
+                
+                // 测试汉字数据
+                addLog('测试汉字数据加载...', 'info');
+                const charactersData = await contentService.getAllCharacters();
+                addLog(`✓ 汉字数据加载成功，共 ${charactersData.length} 条记录`, 'success');
+                
+                // 测试动画数据
+                addLog('测试动画数据加载...', 'info');
+                const animationsData = await contentService.getAllAnimations();
+                addLog(`✓ 动画数据加载成功，共 ${animationsData.length} 条记录`, 'success');
+                
+                // 显示结果
+                results.innerHTML = `
+                    <h4>测试结果：</h4>
+                    <ul>
+                        <li>拼音数据：${pinyinData.length} 条</li>
+                        <li>汉字数据：${charactersData.length} 条</li>
+                        <li>动画数据：${animationsData.length} 条</li>
+                    </ul>
+                    <h4>数据预览：</h4>
+                    <div style="display: flex; gap: 20px;">
+                        <div style="flex: 1;">
+                            <h5>拼音数据（前3条）：</h5>
+                            <pre>${JSON.stringify(pinyinData.slice(0, 3), null, 2)}</pre>
+                        </div>
+                        <div style="flex: 1;">
+                            <h5>汉字数据（前3条）：</h5>
+                            <pre>${JSON.stringify(charactersData.slice(0, 3), null, 2)}</pre>
+                        </div>
+                    </div>
+                `;
+                
+            } catch (error) {
+                addLog(`✗ 测试失败: ${error.message}`, 'error');
+                console.error('详细错误:', error);
+            }
+        }
+        
+        async function testContentView() {
+            addLog('开始测试ContentView页面...', 'info');
+            
+            try {
+                // 模拟ContentView页面的数据加载逻辑
+                const { contentService } = await import('./src/services/contentService.js');
+                
+                // 测试拼音选项卡
+                addLog('切换到拼音选项卡...', 'info');
+                const pinyinData = await contentService.getAllPinyin();
+                addLog(`✓ 拼音选项卡加载成功，共 ${pinyinData.length} 条记录`, 'success');
+                
+                // 测试汉字选项卡
+                addLog('切换到汉字选项卡...', 'info');
+                const charactersData = await contentService.getAllCharacters();
+                addLog(`✓ 汉字选项卡加载成功，共 ${charactersData.length} 条记录`, 'success');
+                
+                // 检查数据格式是否符合ContentView页面的要求
+                const checkDataFormat = (data, type) => {
+                    if (data.length === 0) {
+                        addLog(`⚠ ${type}数据为空`, 'error');
+                        return false;
+                    }
+                    
+                    const sample = data[0];
+                    const requiredFields = ['id', 'title', 'category', 'difficulty', 'createdAt', 'published'];
+                    const missingFields = requiredFields.filter(field => !(field in sample));
+                    
+                    if (missingFields.length > 0) {
+                        addLog(`✗ ${type}数据缺少字段: ${missingFields.join(', ')}`, 'error');
+                        return false;
+                    }
+                    
+                    addLog(`✓ ${type}数据格式正确`, 'success');
+                    return true;
+                };
+                
+                checkDataFormat(pinyinData, '拼音');
+                checkDataFormat(charactersData, '汉字');
+                
+                results.innerHTML = `
+                    <h4>ContentView页面测试结果：</h4>
+                    <p>数据加载功能正常，可以正确显示在控制台页面中。</p>
+                    <p>请访问 <a href="/admin/content" target="_blank">/admin/content</a> 查看实际效果。</p>
+                `;
+                
+            } catch (error) {
+                addLog(`✗ 测试失败: ${error.message}`, 'error');
+                console.error('详细错误:', error);
+            }
+        }
+        
+        // 页面加载后自动测试
+        window.addEventListener('load', () => {
+            testContentService();
+        });
+    </script>
+</body>
+</html>

@@ -1,10 +1,18 @@
 import { createClient } from '@supabase/supabase-js'
 
-// 创建Supabase客户端
+// 创建Supabase客户端（使用匿名密钥）
 const supabase = createClient(
   import.meta.env.VITE_SUPABASE_URL || 'https://your-supabase-url.supabase.co',
   import.meta.env.VITE_SUPABASE_ANON_KEY || 'your-supabase-anon-key'
 )
+
+// 创建管理员Supabase客户端（使用服务端密钥）
+const supabaseAdmin = createClient(
+  import.meta.env.VITE_SUPABASE_URL || 'https://your-supabase-url.supabase.co',
+  import.meta.env.VITE_SUPABASE_SERVICE_KEY || 'your-supabase-service-key'
+)
+
+export { supabaseAdmin }
 
 // 认证相关
 export const auth = {
@@ -694,4 +702,5 @@ export const learningService = {
   }
 }
 
+export { supabase }
 export default supabase

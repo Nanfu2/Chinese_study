@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>测试ContentService - 拼音和汉字学习表</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .result { margin: 10px 0; padding: 10px; border: 1px solid #ccc; }
+        .success { background-color: #d4edda; border-color: #c3e6cb; }
+        .error { background-color: #f8d7da; border-color: #f5c6cb; }
+        .loading { background-color: #d1ecf1; border-color: #bee5eb; }
+    </style>
+</head>
+<body>
+    <h1>测试ContentService - 拼音和汉字学习表</h1>
+    <div id="results"></div>
+    
+    <script type="module">
+        // 动态导入contentService
+        async function testContentService() {
+            const resultsDiv = document.getElementById('results');
+            
+            function addResult(message, type = 'info') {
+                const div = document.createElement('div');
+                div.className = `result ${type}`;
+                div.innerHTML = `<strong>${new Date().toLocaleTimeString()}:</strong> ${message}`;
+                resultsDiv.appendChild(div);
+            }
+            
+            try {
+                addResult('开始导入contentService...', 'loading');
+                
+                // 动态导入contentService
+                const { contentService } = await import('./src/services/contentService.js');
+                addResult('contentService导入成功!', 'success');
+                
+                // 测试getAllPinyin方法
+                addResult('开始测试getAllPinyin方法...', 'loading');
+                try {
+                    const pinyinData = await contentService.getAllPinyin();
+                    addResult(`拼音数据加载成功! 共 ${pinyinData.length} 条数据`, 'success');
+                    console.log('拼音数据:', pinyinData);
+                } catch (error) {
+                    addResult(`拼音数据加载失败: ${error.message}`, 'error');
+                    console.error('拼音数据加载错误:', error);
+                }
+                
+                // 测试getAllCharacters方法
+                addResult('开始测试getAllCharacters方法...', 'loading');
+                try {
+                    const charactersData = await contentService.getAllCharacters();
+                    addResult(`汉字数据加载成功! 共 ${charactersData.length} 条数据`, 'success');
+                    console.log('汉字数据:', charactersData);
+                } catch (error) {
+                    addResult(`汉字数据加载失败: ${error.message}`, 'error');
+                    console.error('汉字数据加载错误:', error);
+                }
+                
+                // 测试getAllAnimations方法
+                addResult('开始测试getAllAnimations方法...', 'loading');
+                try {
+                    const animationsData = await contentService.getAllAnimations();
+                    addResult(`动画数据加载成功! 共 ${animationsData.length} 条数据`, 'success');
+                    console.log('动画数据:', animationsData);
+                } catch (error) {
+                    addResult(`动画数据加载失败: ${error.message}`, 'error');
+                    console.error('动画数据加载错误:', error);
+                }
+                
+                addResult('所有测试完成!', 'success');
+                
+            } catch (error) {
+                addResult(`导入contentService失败: ${error.message}`, 'error');
+                console.error('导入错误:', error);
+            }
+        }
+        
+        // 页面加载后运行测试
+        window.addEventListener('DOMContentLoaded', testContentService);
+    </script>
+</body>
+</html>

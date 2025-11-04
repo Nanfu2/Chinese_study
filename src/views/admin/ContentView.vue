@@ -111,7 +111,7 @@
               <button 
                 v-for="tab in contentTabs" 
                 :key="tab.id"
-                @click="activeTab = tab.id"
+                @click="activeTab = tab.id; handleTabChange()"
                 :class="[
                   'px-4 py-2 text-sm font-medium rounded-lg transition-colors',
                   activeTab === tab.id ? 'bg-primary text-white' : 'bg-white text-gray-700 hover:bg-gray-100'
@@ -152,7 +152,49 @@
 
           <!-- 内容列表 -->
           <div class="bg-white rounded-lg shadow overflow-hidden">
-            <div class="overflow-x-auto">
+            <!-- 加载状态 -->
+            <div v-if="isLoading" class="p-8 text-center">
+              <div class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-600">
+                <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-primary" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                正在加载内容...
+              </div>
+            </div>
+            
+            <!-- 错误消息 -->
+            <div v-else-if="errorMessage" class="p-4 bg-red-50 border border-red-200 rounded-lg">
+              <div class="flex items-center">
+                <svg class="h-5 w-5 text-red-400 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+                </svg>
+                <span class="text-red-800 text-sm">{{ errorMessage }}</span>
+              </div>
+            </div>
+            
+            <!-- 空状态 -->
+            <div v-else-if="currentTabContent.length === 0" class="p-8 text-center">
+              <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+              <h3 class="mt-2 text-sm font-medium text-gray-900">暂无内容</h3>
+              <p class="mt-1 text-sm text-gray-500">当前分类下还没有任何内容。</p>
+              <div class="mt-6">
+                <button 
+                  @click="addContent" 
+                  class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-primary hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
+                >
+                  <svg class="-ml-1 mr-2 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                  </svg>
+                  添加内容
+                </button>
+              </div>
+            </div>
+            
+            <!-- 内容表格 -->
+            <div v-else class="overflow-x-auto">
               <table class="min-w-full divide-y divide-gray-200">
                 <thead class="bg-gray-50">
                   <tr>
@@ -166,7 +208,7 @@
                   </tr>
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
-                  <tr v-for="item in currentTabContent" :key="item.id">
+                  <tr v-for="item in paginatedContent" :key="item.id">
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ item.id }}</td>
                     <td class="px-6 py-4 whitespace-nowrap">
                       <div class="flex items-center">
@@ -257,10 +299,13 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useMainStore } from '../../store'
+import { contentService } from '../../services/contentService'
 
 const router = useRouter()
 const store = useMainStore()
 const showUserMenu = ref(false)
+const isLoading = ref(false)
+const errorMessage = ref('')
 
 // 内容类型选项卡
 const contentTabs = ref([
@@ -276,84 +321,13 @@ const searchQuery = ref('')
 const currentPage = ref(1)
 const pageSize = ref(10)
 
-// 模拟内容数据
+// 真实内容数据
 const contentData = ref({
-  animations: [
-    {
-      id: '1',
-      title: '拼音入门-声母b',
-      description: '学习拼音声母b的发音和书写',
-      thumbnail: '/logo.svg',
-      category: '拼音学习',
-      difficulty: 'easy',
-      createdAt: '2023-01-10 10:00',
-      published: true
-    },
-    {
-      id: '2',
-      title: '汉字启蒙-日',
-      description: '学习汉字"日"的认识和书写',
-      thumbnail: '/logo.svg',
-      category: '汉字启蒙',
-      difficulty: 'easy',
-      createdAt: '2023-01-15 14:30',
-      published: true
-    },
-    {
-      id: '3',
-      title: '成语故事-守株待兔',
-      description: '通过动画学习成语故事"守株待兔"',
-      thumbnail: '/logo.svg',
-      category: '成语故事',
-      difficulty: 'medium',
-      createdAt: '2023-02-01 09:15',
-      published: false
-    }
-  ],
-  pinyin: [
-    {
-      id: 'p1',
-      title: '声母教学-a',
-      description: '学习拼音声母a的发音',
-      category: '拼音学习',
-      difficulty: 'easy',
-      createdAt: '2023-01-05 11:20',
-      published: true
-    }
-  ],
-  characters: [
-    {
-      id: 'c1',
-      title: '基础汉字-水',
-      description: '学习基础汉字"水"',
-      category: '汉字启蒙',
-      difficulty: 'easy',
-      createdAt: '2023-01-20 16:45',
-      published: true
-    }
-  ],
-  stories: [
-    {
-      id: 's1',
-      title: '小蝌蚪找妈妈',
-      description: '经典童话故事',
-      category: '童话故事',
-      difficulty: 'medium',
-      createdAt: '2023-02-10 13:10',
-      published: true
-    }
-  ],
-  vocabulary: [
-    {
-      id: 'v1',
-      title: '日常生活词汇',
-      description: '学习日常生活中常用的中文词汇',
-      category: '词汇学习',
-      difficulty: 'easy',
-      createdAt: '2023-02-20 15:25',
-      published: false
-    }
-  ]
+  animations: [],
+  pinyin: [],
+  characters: [],
+  stories: [],
+  vocabulary: []
 })
 
 // 当前选项卡的内容
@@ -380,6 +354,39 @@ const paginatedContent = computed(() => {
   return currentTabContent.value.slice(start, end)
 })
 
+// 加载内容数据
+const loadContentData = async () => {
+  isLoading.value = true
+  errorMessage.value = ''
+  
+  try {
+    switch (activeTab.value) {
+      case 'animations':
+        contentData.value.animations = await contentService.getAllAnimations()
+        break
+      case 'pinyin':
+        contentData.value.pinyin = await contentService.getAllPinyin()
+        break
+      case 'characters':
+        contentData.value.characters = await contentService.getAllCharacters()
+        break
+      case 'stories':
+      case 'vocabulary':
+        // 故事和词汇暂时使用空数组
+        contentData.value[activeTab.value] = []
+        break
+      default:
+        contentData.value[activeTab.value] = []
+    }
+  } catch (error) {
+    console.error('加载内容数据失败:', error)
+    errorMessage.value = '加载内容数据失败，请检查网络连接或数据库配置'
+    contentData.value[activeTab.value] = []
+  } finally {
+    isLoading.value = false
+  }
+}
+
 // 方法
 const toggleUserMenu = () => {
   showUserMenu.value = !showUserMenu.value
@@ -394,30 +401,49 @@ const logout = async () => {
   }
 }
 
-const addContent = () => {
+const addContent = async () => {
   console.log('添加内容:', activeTab.value)
   // 实际应用中，这里可以打开添加内容模态框
+  // 调用 contentService.addContent()
 }
 
-const editContent = (item) => {
+const editContent = async (item) => {
   console.log('编辑内容:', item)
   // 实际应用中，这里可以打开编辑模态框
+  // 调用 contentService.updateContent()
 }
 
-const togglePublishStatus = (item) => {
-  console.log('切换发布状态:', item)
-  // 实际应用中，这里可以调用API更新内容状态
-  item.published = !item.published
+const togglePublishStatus = async (item) => {
+  try {
+    await contentService.togglePublishStatus(activeTab.value, item.id, !item.published)
+    // 更新本地状态
+    item.published = !item.published
+  } catch (error) {
+    console.error('切换发布状态失败:', error)
+    errorMessage.value = '切换发布状态失败'
+  }
 }
 
-const deleteContent = (item) => {
-  console.log('删除内容:', item)
-  // 实际应用中，这里可以调用API删除内容，并弹出确认对话框
+const deleteContent = async (item) => {
+  if (confirm(`确定要删除"${item.title}"吗？此操作不可撤销。`)) {
+    try {
+      await contentService.deleteContent(activeTab.value, item.id)
+      // 从本地数据中移除
+      const index = contentData.value[activeTab.value].findIndex(content => content.id === item.id)
+      if (index !== -1) {
+        contentData.value[activeTab.value].splice(index, 1)
+      }
+    } catch (error) {
+      console.error('删除内容失败:', error)
+      errorMessage.value = '删除内容失败'
+    }
+  }
 }
 
-// 当切换选项卡时重置页码
+// 当切换选项卡时重置页码并加载数据
 const handleTabChange = () => {
   currentPage.value = 1
+  loadContentData()
 }
 
 // 点击其他地方关闭下拉菜单
@@ -437,6 +463,9 @@ onMounted(() => {
   if (!store.isAdmin) {
     router.push('/login')
   }
+  
+  // 初始加载数据
+  loadContentData()
 })
 
 // 组件卸载时移除事件监听器
