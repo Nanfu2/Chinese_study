@@ -1,0 +1,511 @@
+/* 管理员后台全局样式 */
+
+/* 基础变量定义 */
+:root {
+  --admin-primary: #3b82f6;
+  --admin-primary-dark: #2563eb;
+  --admin-secondary: #6b7280;
+  --admin-success: #10b981;
+  --admin-warning: #f59e0b;
+  --admin-error: #ef4444;
+  --admin-info: #3b82f6;
+  --admin-light: #f9fafb;
+  --admin-dark: #1f2937;
+  --admin-white: #ffffff;
+  --admin-gray-50: #f9fafb;
+  --admin-gray-100: #f3f4f6;
+  --admin-gray-200: #e5e7eb;
+  --admin-gray-300: #d1d5db;
+  --admin-gray-400: #9ca3af;
+  --admin-gray-500: #6b7280;
+  --admin-gray-600: #4b5563;
+  --admin-gray-700: #374151;
+  --admin-gray-800: #1f2937;
+  --admin-gray-900: #111827;
+  --admin-border: #e5e7eb;
+  --admin-shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --admin-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+  --admin-shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --admin-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+/* 应用于整个管理员后台的全局样式 */
+.admin-ui {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  font-size: 16px;
+  line-height: 1.5;
+  color: var(--admin-gray-800);
+  background-color: var(--admin-light);
+}
+
+/* 头部导航样式 */
+.admin-ui header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background-color: var(--admin-white);
+  border-bottom: 1px solid var(--admin-border);
+  box-shadow: var(--admin-shadow-sm);
+}
+
+/* 侧边栏样式 */
+.admin-ui aside {
+  position: sticky;
+  top: 64px;
+  height: calc(100vh - 64px);
+  background-color: var(--admin-gray-100);
+  border-right: 1px solid var(--admin-border);
+  overflow-y: auto;
+  transition: transform 0.3s ease;
+}
+
+.admin-ui aside nav ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.admin-ui aside nav a {
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
+  border-radius: 8px;
+  color: var(--admin-gray-700);
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.admin-ui aside nav a:hover {
+  background-color: var(--admin-gray-200);
+  color: var(--admin-gray-900);
+}
+
+.admin-ui aside nav a.bg-primary {
+  background-color: var(--admin-primary);
+  color: var(--admin-white);
+}
+
+.admin-ui aside nav a.bg-primary:hover {
+  background-color: var(--admin-primary-dark);
+}
+
+.admin-ui aside nav a svg {
+  margin-right: 12px;
+  flex-shrink: 0;
+}
+
+/* 主内容区样式 */
+.admin-ui main {
+  padding: 24px;
+  background-color: var(--admin-light);
+}
+
+/* 卡片样式 */
+.admin-ui .bg-white {
+  background-color: var(--admin-white);
+  border-radius: 8px;
+  box-shadow: var(--admin-shadow);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.admin-ui .bg-white:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--admin-shadow-md);
+}
+
+/* 按钮样式 */
+.admin-ui button {
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  padding: 8px 16px;
+}
+
+.admin-ui button.bg-primary {
+  background-color: var(--admin-primary);
+  color: var(--admin-white);
+}
+
+.admin-ui button.bg-primary:hover {
+  background-color: var(--admin-primary-dark);
+}
+
+.admin-ui button.bg-gray-100 {
+  background-color: var(--admin-gray-100);
+  color: var(--admin-gray-700);
+}
+
+.admin-ui button.bg-gray-100:hover {
+  background-color: var(--admin-gray-200);
+}
+
+.admin-ui button.text-red-600 {
+  color: var(--admin-error);
+}
+
+.admin-ui button.text-red-600:hover {
+  background-color: #fee2e2;
+}
+
+/* 输入框样式 */
+.admin-ui input[type="text"],
+.admin-ui input[type="email"],
+.admin-ui input[type="password"],
+.admin-ui input[type="number"],
+.admin-ui select,
+.admin-ui textarea {
+  width: 100%;
+  padding: 8px 12px;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--admin-gray-700);
+  background-color: var(--admin-white);
+  background-clip: padding-box;
+  border: 1px solid var(--admin-gray-300);
+  border-radius: 8px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.admin-ui input[type="text"]:focus,
+.admin-ui input[type="email"]:focus,
+.admin-ui input[type="password"]:focus,
+.admin-ui input[type="number"]:focus,
+.admin-ui select:focus,
+.admin-ui textarea:focus {
+  outline: none;
+  border-color: var(--admin-primary);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* 复选框样式 */
+.admin-ui input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  border: 1px solid var(--admin-gray-300);
+  border-radius: 4px;
+  background-color: var(--admin-white);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.admin-ui input[type="checkbox"]:checked {
+  background-color: var(--admin-primary);
+  border-color: var(--admin-primary);
+}
+
+/* 表格样式 */
+.admin-ui table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.admin-ui th,
+.admin-ui td {
+  padding: 12px 16px;
+  text-align: left;
+  border-bottom: 1px solid var(--admin-gray-200);
+}
+
+.admin-ui th {
+  font-weight: 500;
+  color: var(--admin-gray-500);
+  text-transform: uppercase;
+  font-size: 12px;
+  letter-spacing: 0.05em;
+  background-color: var(--admin-gray-50);
+}
+
+.admin-ui tr:last-child td {
+  border-bottom: none;
+}
+
+.admin-ui tbody tr:hover {
+  background-color: var(--admin-gray-50);
+}
+
+/* 分页样式 */
+.admin-ui .pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.admin-ui .pagination button {
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--admin-white);
+  border: 1px solid var(--admin-gray-300);
+  border-radius: 4px;
+  color: var(--admin-gray-700);
+}
+
+.admin-ui .pagination button.active {
+  background-color: var(--admin-primary);
+  border-color: var(--admin-primary);
+  color: var(--admin-white);
+}
+
+.admin-ui .pagination button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* 标签样式 */
+.admin-ui .tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  font-size: 12px;
+  font-weight: 500;
+  border-radius: 9999px;
+}
+
+.admin-ui .tag-success {
+  background-color: #dcfce7;
+  color: #166534;
+}
+
+.admin-ui .tag-warning {
+  background-color: #fef3c7;
+  color: #92400e;
+}
+
+.admin-ui .tag-error {
+  background-color: #fee2e2;
+  color: #991b1b;
+}
+
+.admin-ui .tag-info {
+  background-color: #dbeafe;
+  color: #1e3a8a;
+}
+
+/* 模态框样式 */
+.admin-ui .modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 50;
+}
+
+.admin-ui .modal-content {
+  background-color: var(--admin-white);
+  border-radius: 8px;
+  box-shadow: var(--admin-shadow-lg);
+  width: 100%;
+  max-width: 600px;
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+.admin-ui .modal-header {
+  padding: 16px 24px;
+  border-bottom: 1px solid var(--admin-border);
+}
+
+.admin-ui .modal-body {
+  padding: 24px;
+}
+
+.admin-ui .modal-footer {
+  padding: 16px 24px;
+  border-top: 1px solid var(--admin-border);
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+/* 加载状态 */
+.admin-ui .loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 32px;
+}
+
+.admin-ui .loading::after {
+  content: '';
+  width: 24px;
+  height: 24px;
+  border: 2px solid var(--admin-gray-300);
+  border-top: 2px solid var(--admin-primary);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* 响应式布局 */
+@media (max-width: 768px) {
+  .admin-ui .flex {
+    flex-direction: column;
+  }
+  
+  .admin-ui aside {
+    width: 100%;
+    height: auto;
+    position: static;
+    border-right: none;
+    border-bottom: 1px solid var(--admin-border);
+  }
+  
+  .admin-ui aside nav ul {
+    display: flex;
+    overflow-x: auto;
+    padding-bottom: 8px;
+  }
+  
+  .admin-ui aside nav a {
+    white-space: nowrap;
+    padding: 8px 12px;
+    margin-right: 8px;
+  }
+  
+  .admin-ui aside nav a svg {
+    margin-right: 8px;
+  }
+  
+  .admin-ui main {
+    padding: 16px;
+  }
+  
+  .admin-ui .grid-cols-1\/md\:grid-cols-2,
+  .admin-ui .grid-cols-1\/md\:grid-cols-3 {
+    grid-template-columns: 1fr;
+  }
+  
+  .admin-ui table {
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+}
+
+/* 图标样式 */
+.admin-ui .icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+}
+
+/* 下拉菜单样式 */
+.admin-ui .dropdown-menu {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  z-index: 10;
+  display: block;
+  float: left;
+  min-width: 160px;
+  margin: 0;
+  padding: 8px 0;
+  font-size: 14px;
+  text-align: left;
+  list-style: none;
+  background-color: var(--admin-white);
+  background-clip: padding-box;
+  border: 1px solid var(--admin-gray-200);
+  border-radius: 8px;
+  box-shadow: var(--admin-shadow-md);
+}
+
+.admin-ui .dropdown-menu li {
+  display: block;
+}
+
+.admin-ui .dropdown-menu button {
+  width: 100%;
+  text-align: left;
+  padding: 8px 16px;
+  background: none;
+  color: var(--admin-gray-700);
+}
+
+.admin-ui .dropdown-menu button:hover {
+  background-color: var(--admin-gray-100);
+  color: var(--admin-gray-900);
+}
+
+/* 状态颜色 */
+.admin-ui .text-success {
+  color: var(--admin-success);
+}
+
+.admin-ui .text-warning {
+  color: var(--admin-warning);
+}
+
+.admin-ui .text-error {
+  color: var(--admin-error);
+}
+
+.admin-ui .text-info {
+  color: var(--admin-info);
+}
+
+/* 间距工具类 */
+.admin-ui .space-y-1 > * + * { margin-top: 0.25rem; }
+.admin-ui .space-y-2 > * + * { margin-top: 0.5rem; }
+.admin-ui .space-y-3 > * + * { margin-top: 0.75rem; }
+.admin-ui .space-y-4 > * + * { margin-top: 1rem; }
+.admin-ui .space-y-5 > * + * { margin-top: 1.25rem; }
+.admin-ui .space-y-6 > * + * { margin-top: 1.5rem; }
+
+.admin-ui .p-1 { padding: 0.25rem; }
+.admin-ui .p-2 { padding: 0.5rem; }
+.admin-ui .p-3 { padding: 0.75rem; }
+.admin-ui .p-4 { padding: 1rem; }
+.admin-ui .p-5 { padding: 1.25rem; }
+.admin-ui .p-6 { padding: 1.5rem; }
+
+.admin-ui .mb-1 { margin-bottom: 0.25rem; }
+.admin-ui .mb-2 { margin-bottom: 0.5rem; }
+.admin-ui .mb-3 { margin-bottom: 0.75rem; }
+.admin-ui .mb-4 { margin-bottom: 1rem; }
+.admin-ui .mb-5 { margin-bottom: 1.25rem; }
+.admin-ui .mb-6 { margin-bottom: 1.5rem; }
+
+/* 排版 */
+.admin-ui .text-xs { font-size: 0.75rem; }
+.admin-ui .text-sm { font-size: 0.875rem; }
+.admin-ui .text-base { font-size: 1rem; }
+.admin-ui .text-lg { font-size: 1.125rem; }
+.admin-ui .text-xl { font-size: 1.25rem; }
+.admin-ui .text-2xl { font-size: 1.5rem; }
+
+.admin-ui .font-medium { font-weight: 500; }
+.admin-ui .font-bold { font-weight: 700; }
+
+.admin-ui .text-center { text-align: center; }
+.admin-ui .text-left { text-align: left; }
+.admin-ui .text-right { text-align: right; }
+
+/* 隐藏元素 */
+.admin-ui .hidden { display: none; }
+
+/* 卡片阴影效果 */
+.admin-ui .shadow-sm { box-shadow: var(--admin-shadow-sm); }
+.admin-ui .shadow { box-shadow: var(--admin-shadow); }
+.admin-ui .shadow-md { box-shadow: var(--admin-shadow-md); }
+.admin-ui .shadow-lg { box-shadow: var(--admin-shadow-lg); }

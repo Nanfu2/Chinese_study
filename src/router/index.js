@@ -114,7 +114,31 @@ const router = createRouter({
       path: '/admin',
       name: 'admin',
       meta: { requiresAuth: true, role: 'admin' },
-      component: () => import('../views/parent/DashboardView.vue') // 暂时使用家长仪表盘
+      component: () => import('../views/admin/DashboardView.vue')
+    },
+    {
+      path: '/admin/users',
+      name: 'admin-users',
+      meta: { requiresAuth: true, role: 'admin' },
+      component: () => import('../views/admin/UsersView.vue')
+    },
+    {
+      path: '/admin/content',
+      name: 'admin-content',
+      meta: { requiresAuth: true, role: 'admin' },
+      component: () => import('../views/admin/ContentView.vue')
+    },
+    {
+      path: '/admin/statistics',
+      name: 'admin-statistics',
+      meta: { requiresAuth: true, role: 'admin' },
+      component: () => import('../views/admin/StatisticsView.vue')
+    },
+    {
+      path: '/admin/settings',
+      name: 'admin-settings',
+      meta: { requiresAuth: true, role: 'admin' },
+      component: () => import('../views/admin/SettingsView.vue')
     },
     
     // 404路由

@@ -37,11 +37,12 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
-import { RouterView } from 'vue-router'
+import { ref, onMounted, watch } from 'vue'
+import { RouterView, useRoute } from 'vue-router'
 import { useMainStore } from './store'
 
 const store = useMainStore()
+const route = useRoute()
 const error = ref('')
 const successMessage = ref('')
 const showRestReminder = ref(false)
@@ -72,7 +73,11 @@ const clearSuccess = () => {
   successMessage.value = ''
 }
 
-
+// 监听路由变化，根据是否为管理员页面添加相应的class
+const updateAppClass = () => {
+  const isAdminRoute = route.path.startsWith('/admin')
+  document.body.className = isAdminRoute ? 'admin-ui' : ''
+}
 
 // 休息提醒相关
 const startWatchTimeTracking = () => {
@@ -103,11 +108,20 @@ onMounted(async () => {
     console.log('未登录或会话已过期')
   }
   
-
+  // 更新应用类
+  updateAppClass()
   
   // 开始计时
   startWatchTimeTracking()
 })
+
+// 路由变化时更新类名
+watch(
+  () => route.path,
+  () => {
+    updateAppClass()
+  }
+)
 
 // 暴露全局方法给子组件使用
 defineExpose({
@@ -135,5 +149,14 @@ defineExpose({
 .fade-enter-from,
 .fade-leave-to {
   opacity: 0;
+}
+
+/* 引入管理员样式 */
+@import './assets/admin-style.css';
+
+/* 确保管理员样式正确应用 */
+body.admin-ui {
+  --primary: var(--admin-primary);
+  --primary-dark: var(--admin-primary-dark);
 }
 </style>

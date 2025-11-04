@@ -87,8 +87,15 @@ const handleLogin = async () => {
   try {
     await store.login(email.value, password.value)
     
-    // 登录后直接跳转到儿童端
-    router.push('/child')
+    // 登录后根据用户角色跳转到相应界面
+    if (store.isAdmin) {
+      router.push('/admin')
+    } else if (store.isParent) {
+      router.push('/parent')
+    } else {
+      // 默认为儿童角色
+      router.push('/child')
+    }
   } catch (err) {
     error.value = err.message || '登录失败，请检查邮箱和密码'
   } finally {
