@@ -39,12 +39,20 @@
     </div>
 
     <!-- 加载状态 -->
-    <div v-if="isLoading" class="container mx-auto px-4 py-6">
-      <div class="bg-white rounded-2xl shadow-lg overflow-hidden p-8 text-center">
-        <div class="animate-spin rounded-full h-16 w-16 border-b-2 border-red-500 mx-auto mb-4"></div>
-        <p class="text-gray-600">正在加载汉字故事...</p>
-      </div>
+  <div v-if="isLoading" class="container mx-auto px-4 py-6">
+    <div class="bg-white rounded-2xl shadow-lg overflow-hidden p-8 text-center">
+      <div class="animate-spin rounded-full h-16 w-16 border-b-2 border-red-500 mx-auto mb-4"></div>
+      <p class="text-gray-600">正在加载汉字故事...</p>
     </div>
+  </div>
+  
+  <!-- 错误提示 -->
+  <div v-else-if="error" class="container mx-auto px-4 py-6">
+    <div class="bg-white rounded-2xl shadow-lg overflow-hidden p-8 text-center">
+      <p class="text-red-600 text-lg mb-4">{{ error }}</p>
+      <button @click="loadCharacters" class="bg-red-500 text-white px-6 py-2 rounded-full text-sm font-medium">重试</button>
+    </div>
+  </div>
 
     <!-- 主内容区域 -->
     <div v-else class="container mx-auto px-4 py-6">
@@ -108,13 +116,13 @@
         <div class="p-6">
           <h3 class="text-xl font-semibold text-red-600 mb-4">汉字故事</h3>
           <div class="text-gray-700 leading-relaxed">
-            <p class="mb-4">{{ currentCharacter.story }}</p>
+            <p class="mb-4">{{ currentCharacter?.story || currentCharacter?.meaning || '暂无故事内容' }}</p>
           </div>
           
           <!-- 相关图片 -->
-          <div v-if="currentCharacter.illustration" class="mt-6">
-            <img :src="currentCharacter.illustration" :alt="currentCharacter.character + ' 故事插图'" class="w-full h-48 object-cover rounded-lg" />
-          </div>
+            <div v-if="currentCharacter.illustration" class="mt-6">
+             <img :src="currentCharacter.illustration" :alt="currentCharacter.character + ' 故事插图'" class="w-full h-48 object-cover rounded-lg" @error="handleImageError" />
+            </div>
         </div>
       </div>
 
@@ -272,10 +280,11 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
-import { extendedContentService } from '../../services/supabase_extended'
+import { useRouter, useRoute } from 'vue-router'
+import { contentService } from '../../services/contentService'
 
 const router = useRouter()
+const route = useRoute()
 
 // 状态管理
 const showStrokeAnimation = ref(false)
@@ -285,152 +294,68 @@ const isLoading = ref(true)
 const showCompletion = ref(false)
 const learnedCharacters = ref(0)
 const totalCharacters = ref(0)
+const error = ref(null)
 
-// 汉字数据
-const chineseCharacters = [
-  {
-    character: '日',
-    pinyin: 'rì',
-    meaning: '太阳',
-    strokeCount: 4,
-    evolution: [
-      { form: '⊙', period: '甲骨文' },
-      { form: '日', period: '金文' },
-      { form: '日', period: '小篆' },
-      { form: '日', period: '楷书' }
-    ],
-    strokeImage: '/strokes/ri.gif',
-    story: '古时候，人们看到天上的太阳，形状圆圆的，就画了一个圆圈来表示。后来这个圆圈慢慢变成了方框，中间加了一点，就变成了现在的"日"字。太阳每天东升西落，给大地带来光明和温暖。',
-    illustration: '/stories/ri.jpg',
-    words: [
-      { text: '太阳', pinyin: 'tài yáng', meaning: '太阳系的中心天体' },
-      { text: '日出', pinyin: 'rì chū', meaning: '太阳从东方升起' },
-      { text: '日光', pinyin: 'rì guāng', meaning: '太阳的光芒' },
-      { text: '日记', pinyin: 'rì jì', meaning: '每天记录的文字' }
-    ]
-  },
-  {
-    character: '月',
-    pinyin: 'yuè',
-    meaning: '月亮',
-    strokeCount: 4,
-    evolution: [
-      { form: '🌙', period: '甲骨文' },
-      { form: '月', period: '金文' },
-      { form: '月', period: '小篆' },
-      { form: '月', period: '楷书' }
-    ],
-    strokeImage: '/strokes/yue.gif',
-    story: '古人观察月亮，发现它有时圆有时缺，就画了一个弯弯的月亮形状。"月"字就像夜空中挂着的月亮，温柔地照亮大地。月亮的变化也启发了人们制定农历。',
-    illustration: '/stories/yue.jpg',
-    words: [
-      { text: '月亮', pinyin: 'yuè liàng', meaning: '地球的卫星' },
-      { text: '月光', pinyin: 'yuè guāng', meaning: '月亮的光芒' },
-      { text: '月饼', pinyin: 'yuè bǐng', meaning: '中秋节的传统食品' },
-      { text: '月份', pinyin: 'yuè fèn', meaning: '时间的单位' }
-    ]
-  },
-  {
-    character: '山',
-    pinyin: 'shān',
-    meaning: '山峰',
-    strokeCount: 3,
-    evolution: [
-      { form: '⛰️', period: '甲骨文' },
-      { form: '山', period: '金文' },
-      { form: '山', period: '小篆' },
-      { form: '山', period: '楷书' }
-    ],
-    strokeImage: '/strokes/shan.gif',
-    story: '"山"字就像三座连绵的山峰。古人看到高耸的山脉，就用三个尖尖的形状来表示。山是大地的脊梁，也是人们向往的高处。',
-    illustration: '/stories/shan.jpg',
-    words: [
-      { text: '山峰', pinyin: 'shān fēng', meaning: '山的最高点' },
-      { text: '山水', pinyin: 'shān shuǐ', meaning: '山和水，指自然风景' },
-      { text: '爬山', pinyin: 'pá shān', meaning: '攀登山峰' },
-      { text: '火山', pinyin: 'huǒ shān', meaning: '喷发岩浆的山' }
-    ]
-  },
-  {
-    character: '水',
-    pinyin: 'shuǐ',
-    meaning: '河流',
-    strokeCount: 4,
-    evolution: [
-      { form: '💧', period: '甲骨文' },
-      { form: '水', period: '金文' },
-      { form: '水', period: '小篆' },
-      { form: '水', period: '楷书' }
-    ],
-    strokeImage: '/strokes/shui.gif',
-    story: '"水"字中间的曲线就像流动的河水，两边的点像是溅起的水花。水是生命之源，滋润万物生长。',
-    illustration: '/stories/shui.jpg',
-    words: [
-      { text: '河水', pinyin: 'hé shuǐ', meaning: '河流中的水' },
-      { text: '水果', pinyin: 'shuǐ guǒ', meaning: '多汁的果实' },
-      { text: '水平', pinyin: 'shuǐ píng', meaning: '平坦的程度' },
-      { text: '水彩', pinyin: 'shuǐ cǎi', meaning: '用水调和的颜料' }
-    ]
-  },
-  {
-    character: '火',
-    pinyin: 'huǒ',
-    meaning: '火焰',
-    strokeCount: 4,
-    evolution: [
-      { form: '🔥', period: '甲骨文' },
-      { form: '火', period: '金文' },
-      { form: '火', period: '小篆' },
-      { form: '火', period: '楷书' }
-    ],
-    strokeImage: '/strokes/huo.gif',
-    story: '"火"字就像燃烧的火焰形状。火给人类带来光明和温暖，也让人们能够烹饪食物。但火也需要小心使用。',
-    illustration: '/stories/huo.jpg',
-    words: [
-      { text: '火焰', pinyin: 'huǒ yàn', meaning: '燃烧的火苗' },
-      { text: '火车', pinyin: 'huǒ chē', meaning: '铁路交通工具' },
-      { text: '火柴', pinyin: 'huǒ chái', meaning: '点火的小木棍' },
-      { text: '火山', pinyin: 'huǒ shān', meaning: '喷发岩浆的山' }
-    ]
-  },
-  {
-    character: '木',
-    pinyin: 'mù',
-    meaning: '树木',
-    strokeCount: 4,
-    evolution: [
-      { form: '🌳', period: '甲骨文' },
-      { form: '木', period: '金文' },
-      { form: '木', period: '小篆' },
-      { form: '木', period: '楷书' }
-    ],
-    strokeImage: '/strokes/mu.gif',
-    story: '"木"字就像一棵树，有树干、树枝和树根。树木是大自然的重要成员，为我们提供氧气和木材。',
-    illustration: '/stories/mu.jpg',
-    words: [
-      { text: '树木', pinyin: 'shù mù', meaning: '高大的植物' },
-      { text: '木头', pinyin: 'mù tou', meaning: '树木的材质' },
-      { text: '木工', pinyin: 'mù gōng', meaning: '制作木器的工匠' },
-      { text: '木瓜', pinyin: 'mù guā', meaning: '一种水果' }
-    ]
-  }
-]
+// 从contentService获取汉字数据
 
 // 加载汉字数据
 const loadCharacters = async () => {
   isLoading.value = true
-  charactersData.value = chineseCharacters
-  totalCharacters.value = chineseCharacters.length
-  isLoading.value = false
+  error.value = null
+  try {
+    // 从contentService获取汉字故事数据
+    const data = await contentService.getChineseCharactersWithStories()
+    charactersData.value = data
+    totalCharacters.value = data.length
+    console.log('加载汉字数据成功:', data)
+  } catch (err) {
+    console.error('加载汉字数据失败:', err)
+    error.value = '加载汉字数据失败，请稍后再试'
+    // 如果获取数据失败，使用默认的木字作为后备
+    charactersData.value = [
+      {
+        character: '木',
+        pinyin: 'mù',
+        meaning: '树木',
+        strokeCount: 4,
+        evolution: [
+          { form: '🌳', period: '甲骨文' },
+          { form: '木', period: '金文' },
+          { form: '木', period: '小篆' },
+          { form: '木', period: '楷书' }
+        ],
+        strokeImage: '/strokes/mu.gif',
+        story: '"木"字就像一棵树，有树干、树枝和树根。树木是大自然的重要成员，为我们提供氧气和木材。',
+        illustration: '/stories/mu.jpg',
+        words: [
+          { text: '树木', pinyin: 'shù mù', meaning: '高大的植物' },
+          { text: '木头', pinyin: 'mù tou', meaning: '树木的材质' },
+          { text: '木工', pinyin: 'mù gōng', meaning: '制作木器的工匠' },
+          { text: '木瓜', pinyin: 'mù guā', meaning: '一种水果' }
+        ]
+      }
+    ]
+    totalCharacters.value = charactersData.value.length
+  } finally {
+    isLoading.value = false
+  }
 }
 
 // 连线游戏数据
-const matchingItems = [
-  { character: '日', meaning: '太阳' },
-  { character: '月', meaning: '月亮' },
-  { character: '山', meaning: '山峰' },
-  { character: '水', meaning: '河流' }
-]
+const matchingItems = computed(() => {
+  if (!currentCharacter.value?.words?.length) return [
+    { character: '日', meaning: '太阳' },
+    { character: '月', meaning: '月亮' },
+    { character: '山', meaning: '山峰' },
+    { character: '水', meaning: '河流' }
+  ];
+  
+  // 从当前汉字的词语中生成匹配项
+  return currentCharacter.value.words.slice(0, 4).map(word => ({
+    character: word.text[0], // 取词语的第一个字
+    meaning: word.meaning
+  }));
+})
 
 // 计算属性
 const currentCharacter = computed(() => {
@@ -510,10 +435,20 @@ const restartLearning = () => {
   showStrokeAnimation.value = false
 }
 
-// 组件挂载时加载数据
-onMounted(() => {
-  loadCharacters()
-})
+// 处理图片加载错误
+   const handleImageError = (event) => {
+     // 防止无限循环：只有当当前图片不是默认图片时才替换为默认图片
+     if (event.target.src !== '/stories/default.jpg' && !event.target.src.includes('default.jpg')) {
+       event.target.src = '/stories/default.jpg';
+       // 移除error事件监听器，防止默认图片也加载失败时的循环
+       event.target.removeEventListener('error', handleImageError);
+     }
+   };
+  
+  // 组件挂载时加载数据
+  onMounted(() => {
+    loadCharacters()
+  })
 </script>
 
 <style scoped>

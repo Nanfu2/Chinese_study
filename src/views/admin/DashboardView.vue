@@ -105,34 +105,50 @@
         <div class="container mx-auto">
           <h2 class="text-xl font-bold mb-6">欢迎来到管理员后台</h2>
           
+          <!-- 加载状态 -->
+          <div v-if="isLoading" class="bg-white rounded-lg shadow p-8 mb-6 text-center">
+            <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+            <p class="text-gray-600">正在加载数据...</p>
+          </div>
+          
+          <!-- 错误提示 -->
+          <div v-else-if="errorMessage" class="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+            <div class="flex items-center">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-red-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <span class="text-red-700">{{ errorMessage }}</span>
+            </div>
+          </div>
+          
           <!-- 统计卡片 -->
-          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
             <div class="bg-white rounded-lg shadow p-6 border-l-4 border-blue-500">
               <h3 class="text-gray-500 text-sm font-medium">总用户数</h3>
               <p class="text-3xl font-bold mt-2">{{ totalUsers }}</p>
-              <p class="text-green-500 text-sm mt-1">↑ 12% 较上月</p>
+              <p class="text-gray-500 text-sm mt-1">所有注册家长用户</p>
             </div>
             <div class="bg-white rounded-lg shadow p-6 border-l-4 border-green-500">
               <h3 class="text-gray-500 text-sm font-medium">活跃用户</h3>
               <p class="text-3xl font-bold mt-2">{{ activeUsers }}</p>
-              <p class="text-green-500 text-sm mt-1">↑ 8% 较上月</p>
+              <p class="text-gray-500 text-sm mt-1">近30天有活动的用户</p>
             </div>
             <div class="bg-white rounded-lg shadow p-6 border-l-4 border-purple-500">
               <h3 class="text-gray-500 text-sm font-medium">内容数量</h3>
               <p class="text-3xl font-bold mt-2">{{ totalContent }}</p>
-              <p class="text-green-500 text-sm mt-1">↑ 5% 较上月</p>
+              <p class="text-gray-500 text-sm mt-1">所有动画内容</p>
             </div>
             <div class="bg-white rounded-lg shadow p-6 border-l-4 border-orange-500">
               <h3 class="text-gray-500 text-sm font-medium">学习时长</h3>
               <p class="text-3xl font-bold mt-2">{{ totalLearningHours }}h</p>
-              <p class="text-green-500 text-sm mt-1">↑ 15% 较上月</p>
+              <p class="text-gray-500 text-sm mt-1">近30天总学习时间</p>
             </div>
           </div>
 
           <!-- 最近活动 -->
-          <div class="bg-white rounded-lg shadow p-6 mb-8">
+          <div v-if="!isLoading && !errorMessage" class="bg-white rounded-lg shadow p-6 mb-8">
             <h3 class="text-lg font-bold mb-4">最近活动</h3>
-            <div class="overflow-x-auto">
+            <div v-if="recentActivities.length > 0" class="overflow-x-auto">
               <table class="min-w-full divide-y divide-gray-200">
                 <thead>
                   <tr>
@@ -164,6 +180,9 @@
                 </tbody>
               </table>
             </div>
+            <div v-else class="text-center py-8 text-gray-500">
+              <p>暂无互动记录</p>
+            </div>
           </div>
 
           <!-- 学习统计图表 -->
@@ -188,55 +207,51 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useMainStore } from '../../store'
+import { adminService } from '../../services/adminService'
 
 const router = useRouter()
 const store = useMainStore()
 const showUserMenu = ref(false)
+const isLoading = ref(false)
+const errorMessage = ref('')
 
-// 统计数据（模拟）
-const totalUsers = ref(128)
-const activeUsers = ref(85)
-const totalContent = ref(246)
-const totalLearningHours = ref(1245)
+// 统计数据
+const totalUsers = ref(0)
+const activeUsers = ref(0)
+const totalContent = ref(0)
+const totalLearningHours = ref(0)
 
-// 最近活动（模拟）
-const recentActivities = ref([
-  {
-    id: 1,
-    userName: '张三',
-    userEmail: 'zhangsan@example.com',
-    userAvatar: '/logo.svg',
-    action: '注册了新账号',
-    time: '2023-06-15 14:30'
-  },
-  {
-    id: 2,
-    userName: '李四',
-    userEmail: 'lisi@example.com',
-    userAvatar: '/logo.svg',
-    action: '添加了新孩子',
-    time: '2023-06-15 13:15'
-  },
-  {
-    id: 3,
-    userName: '王五',
-    userEmail: 'wangwu@example.com',
-    userAvatar: '/logo.svg',
-    action: '完成了拼音学习课程',
-    time: '2023-06-15 11:45'
-  },
-  {
-    id: 4,
-    userName: '赵六',
-    userEmail: 'zhaoliu@example.com',
-    userAvatar: '/logo.svg',
-    action: '观看了动画视频',
-    time: '2023-06-15 10:20'
+// 最近活动
+const recentActivities = ref([])
+
+// 加载仪表盘数据
+const loadDashboardData = async () => {
+  isLoading.value = true
+  errorMessage.value = ''
+  
+  try {
+    // 分别获取统计数据和最近活动，以便更好地处理错误
+    const statsData = await adminService.getDashboardStats();
+    const activitiesData = await adminService.getRecentActivities(10);
+    
+    // 更新统计数据
+    totalUsers.value = statsData.totalUsers
+    activeUsers.value = statsData.activeUsers
+    totalContent.value = statsData.totalContent
+    totalLearningHours.value = statsData.totalLearningHours
+    
+    // 更新最近活动
+    recentActivities.value = activitiesData
+  } catch (error) {
+    console.error('加载仪表盘数据失败:', error);
+    errorMessage.value = error.message || JSON.stringify(error) || '加载数据失败，请稍后重试'
+  } finally {
+    isLoading.value = false
   }
-])
+}
 
 const toggleUserMenu = () => {
   showUserMenu.value = !showUserMenu.value
@@ -261,21 +276,22 @@ const handleClickOutside = (event) => {
   }
 }
 
-onMounted(() => {
+onMounted(async () => {
   document.addEventListener('click', handleClickOutside)
   
   // 验证用户是否为管理员
   if (!store.isAdmin) {
     router.push('/login')
+    return
   }
+  
+  // 加载数据
+  await loadDashboardData()
 })
 
-// 组件卸载时移除事件监听器
-import { onUnmounted } from 'vue'
 onUnmounted(() => {
   document.removeEventListener('click', handleClickOutside)
-})
-</script>
+});</script>
 
 <style scoped>
 .admin-ui {
