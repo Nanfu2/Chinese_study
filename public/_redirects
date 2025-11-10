@@ -1,1 +1,11 @@
+# 家长路由规则
+/parent/*    /index.html   200
+
+# 管理员路由规则
+/admin/*    /index.html   200
+
+# 儿童路由规则
+/child/*    /index.html   200
+
+# 通用规则作为后备
 /*    /index.html   200
