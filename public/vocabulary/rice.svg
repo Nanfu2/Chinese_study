@@ -1,0 +1,22 @@
+<svg width="200" height="200" xmlns="http://www.w3.org/2000/svg">
+  <!-- 背景 -->
+  <rect width="200" height="200" fill="#f8f9fa" rx="10" ry="10"/>
+  <!-- 碗 -->
+  <path d="M60,120 C60,100 140,100 140,120 L130,140 C130,150 70,150 70,140 Z" fill="#b3e5fc"/>
+  <path d="M60,120 L70,140 M140,120 L130,140" stroke="#81d4fa" stroke-width="3"/>
+  <!-- 米饭 -->
+  <circle cx="100" cy="120" r="30" fill="#fffde7"/>
+  <!-- 米粒装饰 -->
+  <!-- 手动添加一些米粒 -->
+  <circle cx="90" cy="110" r="1.5" fill="#fff9c4"/>
+  <circle cx="110" cy="115" r="2" fill="#fff9c4"/>
+  <circle cx="85" cy="125" r="1" fill="#fff9c4"/>
+  <circle cx="105" cy="105" r="1.5" fill="#fff9c4"/>
+  <circle cx="95" cy="130" r="2" fill="#fff9c4"/>
+  <circle cx="115" cy="125" r="1" fill="#fff9c4"/>
+  <circle cx="100" cy="110" r="1.5" fill="#fff9c4"/>
+  <circle cx="88" cy="118" r="1" fill="#fff9c4"/>
+  <circle cx="112" cy="132" r="1.5" fill="#fff9c4"/>
+  <!-- 文字标签 -->
+  <text x="100" y="175" font-family="Arial, sans-serif" font-size="16" text-anchor="middle" fill="#ff9800" font-weight="bold">米饭</text>
+</svg>

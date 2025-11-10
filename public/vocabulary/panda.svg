@@ -1,0 +1,41 @@
+<svg width="200" height="200" xmlns="http://www.w3.org/2000/svg">
+  <!-- 背景 -->
+  <rect width="200" height="200" fill="#f8f9fa" rx="10" ry="10"/>
+  
+  <!-- 熊猫的身体 -->
+  <ellipse cx="100" cy="140" rx="50" ry="40" fill="#ffffff"/>
+  <path d="M100,140 L100,170" stroke="#ffffff" stroke-width="25" stroke-linecap="round"/>
+  
+  <!-- 熊猫的头部 -->
+  <circle cx="100" cy="90" r="40" fill="#ffffff"/>
+  
+  <!-- 熊猫的黑眼圈 -->
+  <path d="M70,65 Q85,60 90,75 Q95,90 85,100 Q75,105 65,100 Q55,95 55,85 Q55,75 65,70 Z" fill="#333"/>
+  <path d="M130,65 Q115,60 110,75 Q105,90 115,100 Q125,105 135,100 Q145,95 145,85 Q145,75 135,70 Z" fill="#333"/>
+  
+  <!-- 熊猫的眼睛 -->
+  <circle cx="85" cy="80" r="5" fill="white"/>
+  <circle cx="115" cy="80" r="5" fill="white"/>
+  <circle cx="85" cy="80" r="2" fill="#333"/>
+  <circle cx="115" cy="80" r="2" fill="#333"/>
+  
+  <!-- 熊猫的鼻子 -->
+  <circle cx="100" cy="95" r="6" fill="#333"/>
+  
+  <!-- 熊猫的嘴巴 -->
+  <path d="M95,105 Q100,115 105,105" fill="none" stroke="#333" stroke-width="2"/>
+  
+  <!-- 熊猫的耳朵 -->
+  <path d="M70,50 L60,30 L80,60 Z" fill="#333"/>
+  <path d="M130,50 L140,30 L120,60 Z" fill="#333"/>
+  
+  <!-- 熊猫的前腿 -->
+  <path d="M75,130 L70,160" stroke="#ffffff" stroke-width="12" stroke-linecap="round"/>
+  <path d="M125,130 L130,160" stroke="#ffffff" stroke-width="12" stroke-linecap="round"/>
+  <path d="M70,160 L68,165 M130,160 L132,165" stroke="#333" stroke-width="1"/>
+  
+  <!-- 熊猫的后腿 -->
+  <path d="M85,160 L80,180" stroke="#333" stroke-width="12" stroke-linecap="round"/>
+  <path d="M115,160 L120,180" stroke="#333" stroke-width="12" stroke-linecap="round"/>
+  <path d="M80,180 L78,185 M120,180 L122,185" stroke="#ffffff" stroke-width="1"/>
+</svg>

@@ -30,7 +30,7 @@
           :key="category"
           :class="['px-4 py-2 rounded-full text-sm whitespace-nowrap transition-all', 
                   currentCategory === category ? 'bg-green-500 text-white' : 'bg-white text-gray-600 hover:bg-gray-100']"
-          @click="currentCategory = category"
+          @click="changeCategory(category)"
         >
           {{ category }}
         </button>
@@ -78,14 +78,14 @@
           >
             <!-- 正面 -->
             <div v-if="!cardFlipped" class="text-center w-full px-6">
-              <img :src="currentVocabulary.image" :alt="currentVocabulary.word" class="w-32 h-32 mx-auto mb-4 object-contain" />
-              <h3 class="text-3xl font-bold text-gray-800">{{ currentVocabulary.word }}</h3>
+              <img v-if="currentVocabulary.image && currentVocabulary.image.trim()" :src="currentVocabulary.image" :alt="currentVocabulary.word" class="w-32 h-32 mx-auto mb-4 object-contain" />
+              <h3 class="text-3xl font-bold text-gray-800">{{ currentVocabulary.word || '加载中...' }}</h3>
             </div>
             <!-- 背面 -->
             <div v-else class="text-center w-full px-6">
-              <h3 class="text-2xl font-bold text-green-600 mb-2">{{ currentVocabulary.word }}</h3>
-              <p class="text-xl text-gray-600 mb-2">{{ currentVocabulary.pinyin }}</p>
-              <p class="text-gray-700">{{ currentVocabulary.meaning }}</p>
+              <h3 class="text-2xl font-bold text-green-600 mb-2">{{ currentVocabulary.word || '加载中...' }}</h3>
+              <p v-if="currentVocabulary.pinyin" class="text-xl text-gray-600 mb-2">{{ currentVocabulary.pinyin }}</p>
+              <p v-if="currentVocabulary.meaning" class="text-gray-700">{{ currentVocabulary.meaning }}</p>
               <div class="mt-4">
                 <button @click="playSound" class="bg-green-500 text-white rounded-full w-10 h-10 flex items-center justify-center mx-auto">
                   <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -109,15 +109,15 @@
           <div class="flex justify-between mt-8">
             <button 
               @click="previousVocabulary"
-              :disabled="currentVocabularyIndex === 0"
+              :disabled="currentVocabularyIndex === 0 || filteredVocabulary.length === 0"
               class="px-4 py-2 bg-gray-200 text-gray-700 rounded-full disabled:opacity-50 disabled:cursor-not-allowed"
             >
               上一个
             </button>
-            <div class="text-gray-600">{{ currentVocabularyIndex + 1 }} / {{ filteredVocabulary.length }}</div>
+            <div class="text-gray-600">{{ currentVocabularyIndex + 1 }} / {{ filteredVocabulary.length || 0 }}</div>
             <button 
               @click="nextVocabulary"
-              :disabled="currentVocabularyIndex === filteredVocabulary.length - 1"
+              :disabled="currentVocabularyIndex === filteredVocabulary.length - 1 || filteredVocabulary.length === 0"
               class="px-4 py-2 bg-green-500 text-white rounded-full disabled:opacity-50 disabled:cursor-not-allowed"
             >
               下一个
@@ -264,28 +264,28 @@ const vocabularyData = [
     word: '猫',
     pinyin: 'māo',
     meaning: '一种可爱的宠物',
-    image: '/vocabulary/cat.jpg',
+    image: '/vocabulary/cat.svg',
     category: '动物'
   },
   {
     word: '狗',
     pinyin: 'gǒu',
     meaning: '人类的好朋友',
-    image: '/vocabulary/dog.jpg',
+    image: '/vocabulary/dog.svg',
     category: '动物'
   },
   {
     word: '兔子',
     pinyin: 'tù zi',
     meaning: '长耳朵的小动物',
-    image: '/vocabulary/rabbit.jpg',
+    image: '/vocabulary/rabbit.svg',
     category: '动物'
   },
   {
     word: '熊猫',
     pinyin: 'xióng māo',
     meaning: '中国特有的黑白相间的熊',
-    image: '/vocabulary/panda.jpg',
+    image: '/vocabulary/panda.svg',
     category: '动物'
   },
   // 水果类
@@ -293,28 +293,28 @@ const vocabularyData = [
     word: '苹果',
     pinyin: 'píng guǒ',
     meaning: '红色或绿色的水果',
-    image: '/vocabulary/apple.jpg',
+    image: '/vocabulary/apple.svg',
     category: '水果'
   },
   {
     word: '香蕉',
     pinyin: 'xiāng jiāo',
     meaning: '黄色弯曲的水果',
-    image: '/vocabulary/banana.jpg',
+    image: '/vocabulary/banana.svg',
     category: '水果'
   },
   {
     word: '橙子',
     pinyin: 'chéng zi',
     meaning: '橙色的圆形水果',
-    image: '/vocabulary/orange.jpg',
+    image: '/vocabulary/orange.svg',
     category: '水果'
   },
   {
     word: '草莓',
     pinyin: 'cǎo méi',
     meaning: '红色带籽的小水果',
-    image: '/vocabulary/strawberry.jpg',
+    image: '/vocabulary/strawberry.svg',
     category: '水果'
   },
   // 颜色类
@@ -322,28 +322,28 @@ const vocabularyData = [
     word: '红色',
     pinyin: 'hóng sè',
     meaning: '像火一样的颜色',
-    image: '/vocabulary/red.jpg',
+    image: '/vocabulary/red.svg',
     category: '颜色'
   },
   {
     word: '蓝色',
     pinyin: 'lán sè',
     meaning: '像天空一样的颜色',
-    image: '/vocabulary/blue.jpg',
+    image: '/vocabulary/blue.svg',
     category: '颜色'
   },
   {
     word: '绿色',
     pinyin: 'lǜ sè',
     meaning: '像树叶一样的颜色',
-    image: '/vocabulary/green.jpg',
+    image: '/vocabulary/green.svg',
     category: '颜色'
   },
   {
     word: '黄色',
     pinyin: 'huáng sè',
     meaning: '像太阳一样的颜色',
-    image: '/vocabulary/yellow.jpg',
+    image: '/vocabulary/yellow.svg',
     category: '颜色'
   },
   // 数字类
@@ -351,28 +351,28 @@ const vocabularyData = [
     word: '一',
     pinyin: 'yī',
     meaning: '数字1',
-    image: '/vocabulary/one.jpg',
+    image: '/vocabulary/one.svg',
     category: '数字'
   },
   {
     word: '二',
     pinyin: 'èr',
     meaning: '数字2',
-    image: '/vocabulary/two.jpg',
+    image: '/vocabulary/two.svg',
     category: '数字'
   },
   {
     word: '三',
     pinyin: 'sān',
     meaning: '数字3',
-    image: '/vocabulary/three.jpg',
+    image: '/vocabulary/three.svg',
     category: '数字'
   },
   {
     word: '四',
     pinyin: 'sì',
     meaning: '数字4',
-    image: '/vocabulary/four.jpg',
+    image: '/vocabulary/four.svg',
     category: '数字'
   },
   // 家庭类
@@ -380,28 +380,28 @@ const vocabularyData = [
     word: '爸爸',
     pinyin: 'bà ba',
     meaning: '父亲',
-    image: '/vocabulary/father.jpg',
+    image: '/vocabulary/father.svg',
     category: '家庭'
   },
   {
     word: '妈妈',
     pinyin: 'mā ma',
     meaning: '母亲',
-    image: '/vocabulary/mother.jpg',
+    image: '/vocabulary/mother.svg',
     category: '家庭'
   },
   {
     word: '哥哥',
     pinyin: 'gē ge',
     meaning: '哥哥',
-    image: '/vocabulary/brother.jpg',
+    image: '/vocabulary/brother.svg',
     category: '家庭'
   },
   {
     word: '姐姐',
     pinyin: 'jiě jie',
     meaning: '姐姐',
-    image: '/vocabulary/sister.jpg',
+    image: '/vocabulary/sister.svg',
     category: '家庭'
   },
   // 食物类
@@ -409,28 +409,28 @@ const vocabularyData = [
     word: '米饭',
     pinyin: 'mǐ fàn',
     meaning: '主食',
-    image: '/vocabulary/rice.jpg',
+    image: '/vocabulary/rice.svg',
     category: '食物'
   },
   {
     word: '面条',
     pinyin: 'miàn tiáo',
     meaning: '面食',
-    image: '/vocabulary/noodles.jpg',
+    image: '/vocabulary/noodles.svg',
     category: '食物'
   },
   {
     word: '牛奶',
     pinyin: 'niú nǎi',
     meaning: '饮品',
-    image: '/vocabulary/milk.jpg',
+    image: '/vocabulary/milk.svg',
     category: '食物'
   },
   {
     word: '鸡蛋',
     pinyin: 'jī dàn',
     meaning: '蛋类',
-    image: '/vocabulary/egg.jpg',
+    image: '/vocabulary/egg.svg',
     category: '食物'
   },
   // 交通工具类
@@ -438,28 +438,28 @@ const vocabularyData = [
     word: '汽车',
     pinyin: 'qì chē',
     meaning: '陆地交通工具',
-    image: '/vocabulary/car.jpg',
+    image: '/vocabulary/car.svg',
     category: '交通工具'
   },
   {
     word: '飞机',
     pinyin: 'fēi jī',
     meaning: '空中交通工具',
-    image: '/vocabulary/airplane.jpg',
+    image: '/vocabulary/airplane.svg',
     category: '交通工具'
   },
   {
     word: '火车',
     pinyin: 'huǒ chē',
     meaning: '铁路交通工具',
-    image: '/vocabulary/train.jpg',
+    image: '/vocabulary/train.svg',
     category: '交通工具'
   },
   {
     word: '自行车',
     pinyin: 'zì xíng chē',
     meaning: '人力交通工具',
-    image: '/vocabulary/bicycle.jpg',
+    image: '/vocabulary/bicycle.svg',
     category: '交通工具'
   },
   // 学校用品类
@@ -467,28 +467,28 @@ const vocabularyData = [
     word: '书包',
     pinyin: 'shū bāo',
     meaning: '装书的包',
-    image: '/vocabulary/backpack.jpg',
+    image: '/vocabulary/backpack.svg',
     category: '学校用品'
   },
   {
     word: '铅笔',
     pinyin: 'qiān bǐ',
     meaning: '写字工具',
-    image: '/vocabulary/pencil.jpg',
+    image: '/vocabulary/pencil.svg',
     category: '学校用品'
   },
   {
     word: '书本',
     pinyin: 'shū běn',
     meaning: '学习材料',
-    image: '/vocabulary/book.jpg',
+    image: '/vocabulary/book.svg',
     category: '学校用品'
   },
   {
     word: '橡皮',
     pinyin: 'xiàng pí',
     meaning: '擦除工具',
-    image: '/vocabulary/eraser.jpg',
+    image: '/vocabulary/eraser.svg',
     category: '学校用品'
   }
 ]
@@ -498,31 +498,97 @@ const vocabularyCategories = ['动物', '水果', '颜色', '数字', '家庭', 
 
 // 计算属性
 const filteredVocabulary = computed(() => {
-  return vocabularyData.filter(item => item.category === currentCategory.value)
+  try {
+    console.log(`当前分类: ${currentCategory.value}`)
+    // 确保currentCategory.value是字符串
+    const categoryStr = String(currentCategory.value)
+    const filtered = vocabularyData.filter(item => String(item.category) === categoryStr)
+    console.log(`过滤后词汇数量: ${filtered.length}`)
+    return filtered.length > 0 ? filtered : vocabularyData.filter(item => item.category === '动物') // 默认返回动物分类
+  } catch (error) {
+    console.error('过滤词汇时出错:', error)
+    return vocabularyData.filter(item => item.category === '动物') // 出错时返回动物分类
+  }
 })
 
 const currentVocabulary = computed(() => {
-  return filteredVocabulary.value[currentVocabularyIndex.value]
+  try {
+    const vocabularyList = filteredVocabulary.value
+    if (vocabularyList.length === 0) {
+      console.warn('当前分类没有词汇数据')
+      return { word: '暂无数据', pinyin: '', meaning: '请尝试其他分类', image: '' }
+    }
+    
+    // 确保索引在有效范围内
+    const safeIndex = Math.min(currentVocabularyIndex.value, vocabularyList.length - 1)
+    if (safeIndex !== currentVocabularyIndex.value) {
+      currentVocabularyIndex.value = safeIndex
+    }
+    
+    const vocab = vocabularyList[safeIndex]
+    console.log(`当前词汇: ${vocab ? vocab.word : '未找到'}`)
+    return vocab || { word: '暂无数据', pinyin: '', meaning: '请尝试其他分类', image: '' }
+  } catch (error) {
+    console.error('获取当前词汇时出错:', error)
+    return { word: '加载错误', pinyin: '', meaning: '请刷新页面重试', image: '' }
+  }
 })
 
 // 方法
+const changeCategory = (category) => {
+  try {
+    console.log(`切换到分类: ${category}`)
+    // 确保category是字符串类型
+    const categoryStr = String(category)
+    currentCategory.value = categoryStr
+    
+    // 重置索引和状态
+    currentVocabularyIndex.value = 0
+    cardFlipped.value = false
+    
+    // 如果是游戏模式，重置游戏
+    if (learningMode.value === 'game') {
+      resetGame()
+    }
+    
+    // 立即计算并记录过滤结果
+    const vocabularyList = filteredVocabulary.value
+    console.log(`切换分类后词汇数量: ${vocabularyList.length}`)
+    
+    // 如果词汇列表为空，提供友好提示
+    if (vocabularyList.length === 0) {
+      console.warn(`分类 "${categoryStr}" 没有词汇数据`)
+    }
+  } catch (error) {
+    console.error('切换分类时出错:', error)
+    // 出错时默认切换回动物分类
+    currentCategory.value = '动物'
+    currentVocabularyIndex.value = 0
+  }
+}
+
 const goBack = () => {
+  cleanupOnLeave()
   router.back()
 }
 
 const goToHome = () => {
+  cleanupOnLeave()
   router.push('/child')
 }
 
 const goToLibrary = () => {
+  cleanupOnLeave()
   router.push('/child/library')
 }
 
 const goToAchievements = () => {
+  cleanupOnLeave()
   router.push('/child/achievements')
 }
 
 const goToParentDashboard = () => {
+  cleanupOnLeave()
   router.push('/parent')
 }
 
@@ -655,17 +721,27 @@ const stopTimer = () => {
   if (timer.value) {
     clearInterval(timer.value)
     timer.value = null
+    gameTime.value = 0 // 重置计时
   }
 }
 
-// 监听分类变化
-const unwatch = watch(() => currentCategory.value, () => {
-  currentVocabularyIndex.value = 0
-  cardFlipped.value = false
-  if (learningMode.value === 'game') {
-    resetGame()
+// 路由离开守卫 - 确保在导航离开前清理资源
+const cleanupOnLeave = () => {
+  stopTimer()
+  // 这里可以添加其他需要清理的逻辑
+}
+
+// 可以在路由跳转方法中调用
+const enhanceRouterMethods = () => {
+  const originalGoBack = goBack
+  return {
+    ...originalGoBack,
+    goBack: () => {
+      cleanupOnLeave()
+      return originalGoBack()
+    }
   }
-})
+}
 
 // 生命周期
 onMounted(() => {
@@ -674,8 +750,21 @@ onMounted(() => {
 })
 
 onUnmounted(() => {
-  stopTimer()
-  unwatch()
+  // 确保定时器被清理
+  if (timer.value) {
+    clearInterval(timer.value)
+    timer.value = null
+  }
+  
+  // 清理游戏状态
+  matches.value = 0
+  gameTime.value = 0
+  flippedCards.value = []
+  gameCompleted.value = false
+  learnedWords.value.clear()
+  
+  // 清理其他可能的资源
+    // 注意：这里不再尝试移除不存在的handleKeydown事件监听器
 })
 </script>
 

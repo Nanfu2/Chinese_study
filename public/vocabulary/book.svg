@@ -1,0 +1,13 @@
+<svg width="200" height="200" xmlns="http://www.w3.org/2000/svg">
+  <!-- 背景 -->
+  <rect width="200" height="200" fill="#f8f9fa" rx="10" ry="10"/>
+  <!-- 书本主体 --<path d="M60,100 L140,80 L150,150 L70,170 Z" fill="#2196f3"/>
+  <!-- 书脊 --<path d="M70,170 L60,100 L75,95 L85,165 Z" fill="#1976d2"/>
+  <!-- 书页效果 --<path d="M140,80 L150,150 L145,155 L135,85 Z" fill="#e3f2fd"/>
+  <!-- 书本装饰 --<path d="M80,120 L130,100" stroke="#ffffff" stroke-width="2" stroke-opacity="0.3"/>
+  <path d="M80,135 L130,115" stroke="#ffffff" stroke-width="2" stroke-opacity="0.3"/>
+  <path d="M80,150 L130,130" stroke="#ffffff" stroke-width="2" stroke-opacity="0.3"/>
+  <!-- 书本上的图案 --<path d="M100,110 L110,105 L120,110 L115,120 Z" fill="#ffffff" opacity="0.5"/>
+  <circle cx="110" cy="130" r="5" fill="#ffffff" opacity="0.5"/>
+  <!-- 文字标签 --<text x="100" y="175" font-family="Arial, sans-serif" font-size="16" text-anchor="middle" fill="#2196f3" font-weight="bold">书本</text>
+</svg>

@@ -1,0 +1,26 @@
+<svg width="200" height="200" xmlns="http://www.w3.org/2000/svg">
+  <!-- 背景 -->
+  <rect width="200" height="200" fill="#f8f9fa" rx="10" ry="10"/>
+  <!-- 飞机身体 -->
+  <path d="M50,100 L150,100 L140,90 L140,110 Z" fill="#42a5f5"/>
+  <!-- 飞机头部 -->
+  <circle cx="50" cy="100" r="10" fill="#2196f3"/>
+  <!-- 飞机机翼 -->
+  <path d="M80,100 L80,140 L100,130 L100,110 Z" fill="#1976d2"/>
+  <path d="M80,100 L80,60 L100,70 L100,90 Z" fill="#1976d2"/>
+  <!-- 飞机尾翼 -->
+  <path d="M130,100 L130,80 L150,90 L150,110 Z" fill="#1565c0"/>
+  <!-- 窗户 -->
+  <circle cx="70" cy="100" r="4" fill="#fffde7"/>
+  <circle cx="90" cy="100" r="4" fill="#fffde7"/>
+  <circle cx="110" cy="100" r="4" fill="#fffde7"/>
+  <!-- 云朵装饰 -->
+  <circle cx="60" cy="60" r="10" fill="#ffffff"/>
+  <circle cx="75" cy="60" r="10" fill="#ffffff"/>
+  <circle cx="70" cy="50" r="10" fill="#ffffff"/>
+  <circle cx="130" cy="70" r="8" fill="#ffffff"/>
+  <circle cx="145" cy="70" r="8" fill="#ffffff"/>
+  <circle cx="140" cy="62" r="8" fill="#ffffff"/>
+  <!-- 文字标签 -->
+  <text x="100" y="175" font-family="Arial, sans-serif" font-size="16" text-anchor="middle" fill="#42a5f5" font-weight="bold">飞机</text>
+</svg>

@@ -1,0 +1,20 @@
+<svg width="200" height="200" xmlns="http://www.w3.org/2000/svg">
+  <!-- 背景 -->
+  <rect width="200" height="200" fill="#f8f9fa" rx="10" ry="10"/>
+  <!-- 汽车车身 -->
+  <path d="M60,120 L140,120 L150,140 L50,140 Z" fill="#ff5252"/>
+  <!-- 汽车车顶 -->
+  <path d="M75,120 L125,120 L135,90 L65,90 Z" fill="#e53935"/>
+  <!-- 车窗 -->
+  <path d="M70,90 L130,90 L125,120 L75,120 Z" fill="#b3e5fc"/>
+  <!-- 车轮 -->
+  <circle cx="80" cy="140" r="15" fill="#424242"/>
+  <circle cx="120" cy="140" r="15" fill="#424242"/>
+  <circle cx="80" cy="140" r="8" fill="#bdbdbd"/>
+  <circle cx="120" cy="140" r="8" fill="#bdbdbd"/>
+  <!-- 车灯 -->
+  <circle cx="55" cy="120" r="5" fill="#fffde7"/>
+  <circle cx="145" cy="120" r="5" fill="#fffde7"/>
+  <!-- 文字标签 -->
+  <text x="100" y="175" font-family="Arial, sans-serif" font-size="16" text-anchor="middle" fill="#ff5252" font-weight="bold">汽车</text>
+</svg>

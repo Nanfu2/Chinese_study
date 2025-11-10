@@ -1,0 +1,36 @@
+<svg width="200" height="200" xmlns="http://www.w3.org/2000/svg">
+  <!-- 背景 -->
+  <rect width="200" height="200" fill="#f8f9fa" rx="10" ry="10"/>
+  
+  <!-- 兔子的身体 -->
+  <ellipse cx="100" cy="140" rx="45" ry="35" fill="#ffffff"/>
+  <path d="M100,140 L100,170" stroke="#ffffff" stroke-width="25" stroke-linecap="round"/>
+  
+  <!-- 兔子的头部 -->
+  <circle cx="100" cy="90" r="35" fill="#ffffff"/>
+  
+  <!-- 兔子的眼睛 -->
+  <circle cx="85" cy="85" r="6" fill="#333"/>
+  <circle cx="115" cy="85" r="6" fill="#333"/>
+  <circle cx="88" cy="82" r="2" fill="white"/>
+  <circle cx="118" cy="82" r="2" fill="white"/>
+  
+  <!-- 兔子的鼻子和嘴巴 -->
+  <polygon points="100,95 95,102 105,102" fill="#ff9999"/>
+  <path d="M95,102 Q100,108 105,102" fill="none" stroke="#333" stroke-width="1"/>
+  
+  <!-- 兔子的耳朵 -->
+  <path d="M80,40 L65,10 L85,60 Z" fill="#ffffff" stroke="#f8f9fa" stroke-width="1"/>
+  <path d="M120,40 L135,10 L115,60 Z" fill="#ffffff" stroke="#f8f9fa" stroke-width="1"/>
+  <path d="M80,40 L80,30" stroke="#ffffff" stroke-width="10"/>
+  <path d="M120,40 L120,30" stroke="#ffffff" stroke-width="10"/>
+  <path d="M75,45 L70,35 L80,50 Z" fill="#ffcccc"/>
+  <path d="M125,45 L130,35 L120,50 Z" fill="#ffcccc"/>
+  
+  <!-- 兔子的前腿 -->
+  <path d="M80,130 L75,160" stroke="#ffffff" stroke-width="12" stroke-linecap="round"/>
+  <path d="M120,130 L125,160" stroke="#ffffff" stroke-width="12" stroke-linecap="round"/>
+  <path d="M75,160 L73,165 M125,160 L127,165" stroke="#333" stroke-width="1"/>
+  <!-- 兔子的尾巴 -->
+  <circle cx="135" cy="145" r="12" fill="#ffffff"/>
+</svg>

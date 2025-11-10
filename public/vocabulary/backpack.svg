@@ -1,0 +1,20 @@
+<svg width="200" height="200" xmlns="http://www.w3.org/2000/svg">
+  <!-- 背景 -->
+  <rect width="200" height="200" fill="#f8f9fa" rx="10" ry="10"/>
+  <!-- 书包主体 -->
+  <path d="M60,110 L140,110 L150,160 L50,160 Z" fill="#795548"/>
+  <!-- 书包盖 -->
+  <path d="M60,110 L140,110 L130,90 L70,90 Z" fill="#6d4c41"/>
+  <!-- 书包带 -->
+  <path d="M70,90 C60,60 140,60 130,90" stroke="#5d4037" stroke-width="8" stroke-linecap="round"/>
+  <!-- 口袋 -->
+  <path d="M75,130 L125,130 L120,145 L80,145 Z" fill="#5d4037"/>
+  <!-- 装饰条纹 -->
+  <path d="M60,120 L140,120" stroke="#5d4037" stroke-width="2"/>
+  <path d="M60,140 L140,140" stroke="#5d4037" stroke-width="2"/>
+  <!-- 拉锁 -->
+  <circle cx="100" cy="110" r="2" fill="#bdbdbd"/>
+  <path d="M90,110 L110,110" stroke="#bdbdbd" stroke-width="1" stroke-dasharray="2,2"/>
+  <!-- 文字标签 -->
+  <text x="100" y="175" font-family="Arial, sans-serif" font-size="16" text-anchor="middle" fill="#795548" font-weight="bold">书包</text>
+</svg>

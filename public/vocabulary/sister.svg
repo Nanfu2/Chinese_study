@@ -1,0 +1,21 @@
+<svg width="200" height="200" xmlns="http://www.w3.org/2000/svg">
+  <!-- 背景 -->
+  <rect width="200" height="200" fill="#f8f9fa" rx="10" ry="10"/>
+  <!-- 人物身体 -->
+  <circle cx="100" cy="105" r="25" fill="#ffd7b5"/>
+  <path d="M100,130 L70,180 M100,130 L130,180" stroke="#f48fb1" stroke-width="5" stroke-linecap="round"/>
+  <path d="M100,130 L60,120 M100,130 L140,120" stroke="#f48fb1" stroke-width="5" stroke-linecap="round"/>
+  <!-- 头部 -->
+  <circle cx="100" cy="70" r="22" fill="#ffd7b5"/>
+  <!-- 眼睛 -->
+  <circle cx="90" cy="65" r="3" fill="#333"/>
+  <circle cx="110" cy="65" r="3" fill="#333"/>
+  <!-- 嘴巴 -->
+  <path d="M90,75 Q100,83 110,75" stroke="#333" stroke-width="2" fill="none"/>
+  <!-- 头发 -->
+  <path d="M78,43 L78,70 C78,80 122,80 122,70 L122,43 C112,33 88,33 78,43 Z" fill="#ff80ab"/>
+  <!-- 发梢装饰 -->
+  <path d="M78,70 C70,75 70,85 78,90 M122,70 C130,75 130,85 122,90" stroke="#ff80ab" stroke-width="4" stroke-linecap="round"/>
+  <!-- 文字标签 -->
+  <text x="100" y="190" font-family="Arial, sans-serif" font-size="16" text-anchor="middle" fill="#f48fb1" font-weight="bold">姐姐</text>
+</svg>

@@ -1,0 +1,16 @@
+<svg width="200" height="200" xmlns="http://www.w3.org/2000/svg">
+  <!-- 背景 -->
+  <rect width="200" height="200" fill="#f8f9fa" rx="10" ry="10"/>
+  <!-- 数字1图形 -->
+  <path d="M80,60 C85,60 90,65 95,70 L110,160 C115,170 100,170 100,160 L85,70" stroke="#1976d2" stroke-width="15" stroke-linecap="round" fill="none"/>
+  <!-- 装饰圆形 -->
+  <circle cx="100" cy="140" r="60" fill="#e3f2fd" opacity="0.7"/>
+  <!-- 星星装饰 -->
+  <path d="M150,70 L155,82 L168,84 L158,93 L160,107 L150,103 L140,107 L142,93 L132,84 L145,82 Z" fill="#ffd700"/>
+  <path d="M60,120 L65,132 L78,134 L68,143 L70,157 L60,153 L50,157 L52,143 L42,134 L55,132 Z" fill="#ff9800"/>
+  <path d="M140,130 L145,142 L158,144 L148,153 L150,167 L140,163 L130,167 L132,153 L122,144 L135,142 Z" fill="#4caf50"/>
+  <!-- 数字标签 -->
+  <text x="100" y="180" font-family="Arial, sans-serif" font-size="16" text-anchor="middle" fill="#1976d2" font-weight="bold">一 (1)</text>
+  <!-- 拼音标签 -->
+  <text x="100" y="195" font-family="Arial, sans-serif" font-size="12" text-anchor="middle" fill="#666">yī (one)</text>
+</svg>

@@ -1,0 +1,32 @@
+<svg width="200" height="200" xmlns="http://www.w3.org/2000/svg">
+  <!-- 背景 -->
+  <rect width="200" height="200" fill="#f8f9fa" rx="10" ry="10"/>
+  
+  <!-- 狗的身体 -->
+  <ellipse cx="100" cy="130" rx="50" ry="40" fill="#d2b48c"/>
+  
+  <!-- 狗的头部 -->
+  <circle cx="100" cy="80" r="40" fill="#d2b48c"/>
+  
+  <!-- 狗的眼睛 -->
+  <circle cx="85" cy="75" r="8" fill="white"/>
+  <circle cx="115" cy="75" r="8" fill="white"/>
+  <circle cx="85" cy="75" r="4" fill="#333"/>
+  <circle cx="115" cy="75" r="4" fill="#333"/>
+  
+  <!-- 狗的鼻子 -->
+  <circle cx="100" cy="90" r="8" fill="#333"/>
+  <path d="M96,95 Q100,98 104,95" fill="none" stroke="#333" stroke-width="2"/>
+  
+  <!-- 狗的耳朵 -->
+  <path d="M70,45 L60,30 L80,55 Z" fill="#d2b48c"/>
+  <path d="M130,45 L140,30 L120,55 Z" fill="#d2b48c"/>
+  
+  <!-- 狗的舌头 -->
+  <path d="M95,100 Q100,110 105,100" fill="#ffcccc" stroke="#ff9999" stroke-width="1"/>
+  <path d="M100,110 L100,115" stroke="#ff9999" stroke-width="2"/>
+  
+  <!-- 狗的尾巴 -->
+  <path d="M145,125 Q160,110 170,125" fill="none" stroke="#d2b48c" stroke-width="8" stroke-linecap="round"/>
+  <path d="M170,125 Q175,120 170,115" fill="none" stroke="#d2b48c" stroke-width="8" stroke-linecap="round"/>
+</svg>

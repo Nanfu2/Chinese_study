@@ -1,0 +1,18 @@
+<svg width="200" height="200" xmlns="http://www.w3.org/2000/svg">
+  <!-- 背景 -->
+  <rect width="200" height="200" fill="#f8f9fa" rx="10" ry="10"/>
+  <!-- 铅笔主体 -->
+  <path d="M70,140 L130,100 L140,110 L80,150 Z" fill="#f44336"/>
+  <!-- 铅笔尖 -->
+  <path d="M130,100 L140,110 L130,120 Z" fill="#757575"/>
+  <!-- 铅笔橡皮擦 -->
+  <path d="M70,140 L80,150 L90,145 L80,135 Z" fill="#ffccbc"/>
+  <!-- 铅笔装饰 -->
+  <path d="M80,135 L125,105" stroke="#e53935" stroke-width="2"/>
+  <path d="M90,145 L135,115" stroke="#e53935" stroke-width="2"/>
+  <!-- 装饰线条 -->
+  <path d="M100,120 L110,115" stroke="#ffffff" stroke-width="1.5"/>
+  <path d="M95,125 L105,120" stroke="#ffffff" stroke-width="1.5"/>
+  <!-- 文字标签 -->
+  <text x="100" y="175" font-family="Arial, sans-serif" font-size="16" text-anchor="middle" fill="#f44336" font-weight="bold">铅笔</text>
+</svg>

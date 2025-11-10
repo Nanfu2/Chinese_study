@@ -1,0 +1,19 @@
+<svg width="200" height="200" xmlns="http://www.w3.org/2000/svg">
+  <!-- 背景 -->
+  <rect width="200" height="200" fill="#f8f9fa" rx="10" ry="10"/>
+  <!-- 人物身体 -->
+  <circle cx="100" cy="100" r="30" fill="#ffd7b5"/>
+  <path d="M100,130 L70,180 M100,130 L130,180" stroke="#4a86e8" stroke-width="6" stroke-linecap="round"/>
+  <path d="M100,130 L60,130 M100,130 L140,130" stroke="#4a86e8" stroke-width="6" stroke-linecap="round"/>
+  <!-- 头部 -->
+  <circle cx="100" cy="70" r="25" fill="#ffd7b5"/>
+  <!-- 眼睛 -->
+  <circle cx="90" cy="65" r="3" fill="#333"/>
+  <circle cx="110" cy="65" r="3" fill="#333"/>
+  <!-- 嘴巴 -->
+  <path d="M90,75 Q100,85 110,75" stroke="#333" stroke-width="2" fill="none"/>
+  <!-- 头发 -->
+  <path d="M75,70 C65,60 65,50 75,45 L125,45 C135,50 135,60 125,70 Z" fill="#5d4037"/>
+  <!-- 文字标签 -->
+  <text x="100" y="190" font-family="Arial, sans-serif" font-size="16" text-anchor="middle" fill="#4a86e8" font-weight="bold">爸爸</text>
+</svg>

@@ -1,0 +1,28 @@
+<svg width="200" height="200" xmlns="http://www.w3.org/2000/svg">
+  <!-- 背景 -->
+  <rect width="200" height="200" fill="#f8f9fa" rx="10" ry="10"/>
+  <!-- 火车车头 -->
+  <path d="M60,130 L120,130 L130,110 L70,110 Z" fill="#6d4c41"/>
+  <!-- 火车车厢 -->
+  <path d="M120,130 L150,130 L150,110 L130,110 Z" fill="#5d4037"/>
+  <!-- 火车窗户 -->
+  <path d="M75,115 L115,115 L115,125 L75,125 Z" fill="#b3e5fc"/>
+  <path d="M135,115 L145,115 L145,125 L135,125 Z" fill="#b3e5fc"/>
+  <!-- 车轮 -->
+  <circle cx="80" cy="145" r="10" fill="#212121"/>
+  <circle cx="110" cy="145" r="10" fill="#212121"/>
+  <circle cx="140" cy="145" r="10" fill="#212121"/>
+  <circle cx="80" cy="145" r="5" fill="#757575"/>
+  <circle cx="110" cy="145" r="5" fill="#757575"/>
+  <circle cx="140" cy="145" r="5" fill="#757575"/>
+  <!-- 车灯 -->
+  <circle cx="70" cy="120" r="3" fill="#fffde7"/>
+  <!-- 烟囱 -->
+  <path d="M105,110 L115,110 L115,90 L105,90 Z" fill="#5d4037"/>
+  <!-- 烟雾 -->
+  <circle cx="110" cy="85" r="5" fill="#f5f5f5" opacity="0.8"/>
+  <circle cx="120" cy="80" r="6" fill="#f5f5f5" opacity="0.7"/>
+  <circle cx="130" cy="75" r="7" fill="#f5f5f5" opacity="0.6"/>
+  <!-- 文字标签 -->
+  <text x="100" y="175" font-family="Arial, sans-serif" font-size="16" text-anchor="middle" fill="#6d4c41" font-weight="bold">火车</text>
+</svg>
